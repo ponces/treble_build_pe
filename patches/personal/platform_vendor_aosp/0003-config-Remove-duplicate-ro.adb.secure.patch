@@ -5,19 +5,21 @@ Subject: [PATCH 4/5] config: Remove duplicate ro.adb.secure
 
 Change-Id: I7a507b06acd28dbc6ab507c8c14e85c16600288c
 ---
- config/common.mk | 3 ---
- 1 file changed, 3 deletions(-)
+ config/common.mk | 5 -----
+ 1 file changed, 5 deletions(-)
 
 diff --git a/config/common.mk b/config/common.mk
 index f16f9c18..a969b6af 100644
 --- a/config/common.mk
 +++ b/config/common.mk
-@@ -27,9 +27,6 @@ ifeq ($(TARGET_BUILD_VARIANT),eng)
+@@ -27,11 +27,6 @@ ifeq ($(TARGET_BUILD_VARIANT),eng)
  # Disable ADB authentication
  PRODUCT_SYSTEM_DEFAULT_PROPERTIES += ro.adb.secure=0
+-PRODUCT_SYSTEM_DEFAULT_PROPERTIES += persist.sys.usb.config=adb
  else
 -# Enable ADB authentication
 -PRODUCT_SYSTEM_DEFAULT_PROPERTIES += ro.adb.secure=1
+-PRODUCT_SYSTEM_DEFAULT_PROPERTIES += persist.sys.usb.config=none
 -
  # Disable extra StrictMode features on all non-engineering builds
  PRODUCT_SYSTEM_DEFAULT_PROPERTIES += persist.sys.strictmode.disable=true

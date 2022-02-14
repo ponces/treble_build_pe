@@ -15,8 +15,8 @@ index 4ae5095..5e39d5b 100644
 --- a/sepolicy/file_contexts
 +++ b/sepolicy/file_contexts
 @@ -6,9 +6,6 @@
- /system/bin/phh-on-data.sh u:object_r:phhsu_exec:s0
  /system/bin/asus-motor u:object_r:phhsu_exec:s0
+ /system/bin/xiaomi-touch u:object_r:phhsu_exec:s0
  
 -#/system/bin/fsck\.exfat                 u:object_r:fsck_exec:s0
 -/system/bin/fsck\.ntfs                  u:object_r:fsck_exec:s0
