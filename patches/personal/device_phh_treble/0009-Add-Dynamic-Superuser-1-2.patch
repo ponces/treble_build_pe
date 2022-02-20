@@ -1,19 +1,19 @@
-From fc451c8f158268e8dd2bf80f3d63fe7f48255677 Mon Sep 17 00:00:00 2001
+From 6ebbdc477e053fdc97d0b1a91deb90be53a61e4b Mon Sep 17 00:00:00 2001
 From: Victor Bo <bvoid@yandex.ru>
 Date: Tue, 1 Feb 2022 14:45:40 +0000
 Subject: [PATCH 9/9] Add Dynamic Superuser (1/2)
 
 ---
- base.mk                |   2 ++
- me.phh.superuser.apk   | Bin 0 -> 1040472 bytes
- phh-prop-handler.sh    |  22 ++++++++++++++++++++++
- su/su.rc               |   1 +
- vndk.rc                |   3 +++
- 5 files changed, 28 insertions(+)
+ base.mk              |   2 ++
+ me.phh.superuser.apk | Bin 0 -> 1040472 bytes
+ phh-prop-handler.sh  |  24 ++++++++++++++++++++++++
+ su/su.rc             |   1 +
+ vndk.rc              |   3 +++
+ 5 files changed, 30 insertions(+)
  create mode 100644 me.phh.superuser.apk
 
 diff --git a/base.mk b/base.mk
-index 7eabb5e..3b17e10 100644
+index eb610e3..c05009d 100644
 --- a/base.mk
 +++ b/base.mk
 @@ -58,6 +58,8 @@ PRODUCT_COPY_FILES += \
@@ -16438,10 +16438,10 @@ literal 0
 HcmV?d00001
 
 diff --git a/phh-prop-handler.sh b/phh-prop-handler.sh
-index 8b65a68..7e7948b 100644
+index 4371632..7e7948b 100644
 --- a/phh-prop-handler.sh
 +++ b/phh-prop-handler.sh
-@@ -155,6 +155,30 @@ if [ "$1" == "persist.sys.phh.caf.audio_policy" ];then
+@@ -165,6 +165,30 @@ if [ "$1" == "persist.sys.phh.caf.audio_policy" ];then
      exit
  fi
  
@@ -16481,7 +16481,7 @@ index 935bdde..3221fc6 100644
      class main
 +    disabled
 diff --git a/vndk.rc b/vndk.rc
-index d7cc703..a4e04bb 100644
+index 70b31e5..bf9eb1e 100644
 --- a/vndk.rc
 +++ b/vndk.rc
 @@ -62,6 +62,9 @@ on property:persist.sys.phh.disable_a2dp_offload=1
@@ -16495,5 +16495,5 @@ index d7cc703..a4e04bb 100644
      start ril-proxy
  
 -- 
-2.32.0
+2.35.1
 

@@ -1,7 +1,7 @@
-From 314462d52502de4c850b3e657bdca280679188e1 Mon Sep 17 00:00:00 2001
+From 58078bea48a0aa23a633518ac4162a2dbbd8d816 Mon Sep 17 00:00:00 2001
 From: Danny Lin <danny@kdrag0n.dev>
 Date: Sat, 9 Oct 2021 14:39:38 -0700
-Subject: [PATCH 4/15] SystemUI: Use Monet colors for power menu
+Subject: [PATCH 03/13] SystemUI: Use Monet colors for power menu
 
 It's odd that the power menu doesn't use Monet colors, unlike most of
 System UI. This makes it feel more integrated with the rest of the
@@ -51,5 +51,5 @@ index f539b0cf68a1..9ea915c1cb3f 100644
      <color name="global_actions_shutdown_ui_text">@color/control_primary_text</color>
  
 -- 
-2.25.1
+2.35.1
 

@@ -1,4 +1,4 @@
-From efb2f041175836a16b1082812c23f093842a9552 Mon Sep 17 00:00:00 2001
+From 8409b62c3fbc11cce7f069505e333ff1d8434d26 Mon Sep 17 00:00:00 2001
 From: SamarV-121 <samarvispute121@gmail.com>
 Date: Thu, 15 Jul 2021 23:16:29 +0530
 Subject: [PATCH 2/2] Allow hwc HAL to read hwc.exynos.vsync_mode prop
@@ -36,5 +36,5 @@ index 63f4edc..4bb1965 100644
 +
 +get_prop(hal_graphics_composer_default, vendor_hwc_prop);
 -- 
-2.32.0
+2.35.1
 

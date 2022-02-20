@@ -1,7 +1,7 @@
-From 00463f495ad23afddbf5bc0b4c227e63d09bc8e4 Mon Sep 17 00:00:00 2001
+From 7c792966067e9efa93d9582b052415f472b762ab Mon Sep 17 00:00:00 2001
 From: SagarMakhar <sagarmakhar@gmail.com>
 Date: Sat, 6 Nov 2021 13:16:24 +0000
-Subject: [PATCH 15/15] Fix QS clock being white on light theme
+Subject: [PATCH 13/13] Fix QS clock being white on light theme
 
 Steps to reproduce without this commit:
 - Turn off dark theme
@@ -68,5 +68,5 @@ index 18d6e646b007..7aa668440b4b 100644
          mStatusBarIconController.removeIconGroup(mIconManager);
          mQSCarrierGroupController.setOnSingleCarrierChangedListener(null);
 -- 
-2.25.1
+2.35.1
 

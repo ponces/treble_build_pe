@@ -1,4 +1,4 @@
-From 891efc41a6407acef020a6a806810dc33320a57e Mon Sep 17 00:00:00 2001
+From ccbd58534f8967304089a5bdfa9946c464de9450 Mon Sep 17 00:00:00 2001
 From: Andy CrossGate Yan <GeForce8800Ultra@gmail.com>
 Date: Wed, 23 Oct 2019 09:38:16 +0000
 Subject: [PATCH 1/9] Remove fsck SELinux labels
@@ -25,5 +25,5 @@ index 999ff97..11dd447 100644
  
  /sec_storage(/.*)?      u:object_r:teecd_data_file:s0
 -- 
-2.25.1
+2.35.1
 

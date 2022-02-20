@@ -1,4 +1,4 @@
-From 1bcd7788507351c3a890be3c5563950d584736e1 Mon Sep 17 00:00:00 2001
+From 5cef4ec74abcdecc6eb8334284def5cd1cc2e57f Mon Sep 17 00:00:00 2001
 From: Victor Bo <bvoid@yandex.ru>
 Date: Tue, 1 Feb 2022 14:47:52 +0000
 Subject: [PATCH 3/4] Enable Dynamic Superuser (2/2)
@@ -33,7 +33,7 @@ index e2471cf..6949905 100644
          spListener.onSharedPreferenceChanged(sp, MiscSettings.bluetooth)
          spListener.onSharedPreferenceChanged(sp, MiscSettings.displayFps)
 diff --git a/app/src/main/java/me/phh/treble/app/MiscSettings.kt b/app/src/main/java/me/phh/treble/app/MiscSettings.kt
-index c1dd369..46de9a1 100644
+index f93c240..9fd8ca2 100644
 --- a/app/src/main/java/me/phh/treble/app/MiscSettings.kt
 +++ b/app/src/main/java/me/phh/treble/app/MiscSettings.kt
 @@ -12,6 +12,7 @@ object MiscSettings : Settings {
@@ -45,10 +45,10 @@ index c1dd369..46de9a1 100644
      val multiCameras = "key_misc_multi_camera"
      val forceCamera2APIHAL3 = "key_misc_force_camera2api_hal3"
 diff --git a/app/src/main/res/xml/pref_misc.xml b/app/src/main/res/xml/pref_misc.xml
-index 08fd209..6b3fd96 100644
+index c93dbb7..3f3b042 100644
 --- a/app/src/main/res/xml/pref_misc.xml
 +++ b/app/src/main/res/xml/pref_misc.xml
-@@ -137,6 +137,11 @@
+@@ -141,6 +141,11 @@
              android:summary="Unlikely to work for you" />
  		<Preference android:title="@string/remove_telephony_subsystem"
              android:key="key_misc_removetelephony" />
@@ -61,5 +61,5 @@ index 08fd209..6b3fd96 100644
      <PreferenceCategory android:title="Debugging">
          <Preference android:title="Debug Sensors">
 -- 
-2.32.0
+2.35.1
 
