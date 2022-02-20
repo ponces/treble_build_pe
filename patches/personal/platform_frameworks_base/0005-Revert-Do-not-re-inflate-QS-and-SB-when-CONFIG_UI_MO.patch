@@ -1,7 +1,7 @@
-From 1ed0fb3e67d9d1f41435e7e60b801837a83c2c64 Mon Sep 17 00:00:00 2001
+From dc66ea97d0c4d30df0b8de6b630712808b577abc Mon Sep 17 00:00:00 2001
 From: Danny Lin <danny@kdrag0n.dev>
 Date: Wed, 6 Oct 2021 18:41:11 -0700
-Subject: [PATCH 6/15] Revert "Do not re-inflate QS and SB when
+Subject: [PATCH 05/13] Revert "Do not re-inflate QS and SB when
  CONFIG_UI_MODE"
 
 This reverts commit 8a40ff855b86bc86e23367017002289920855a4e.
@@ -29,5 +29,5 @@ index b45dc52585ad..87d90adceba5 100644
      private final ExtensionFragmentManager mPlugins = new ExtensionFragmentManager();
  
 -- 
-2.25.1
+2.35.1
 

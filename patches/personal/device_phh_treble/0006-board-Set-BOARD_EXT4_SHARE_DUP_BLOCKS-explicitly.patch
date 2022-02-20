@@ -1,4 +1,4 @@
-From d7b179f234d76c3acf7a723fc05f07efe9adc84c Mon Sep 17 00:00:00 2001
+From b8f2529704cf80a7c6d3193c98ef0a0328352d6c Mon Sep 17 00:00:00 2001
 From: Andy CrossGate Yan <GeForce8800Ultra@gmail.com>
 Date: Sun, 8 Aug 2021 09:29:32 +0000
 Subject: [PATCH 6/9] board: Set BOARD_EXT4_SHARE_DUP_BLOCKS explicitly
@@ -21,5 +21,5 @@ index 04f99ef..22beef4 100644
  BUILD_BROKEN_DUP_RULES := true
  
 -- 
-2.25.1
+2.35.1
 

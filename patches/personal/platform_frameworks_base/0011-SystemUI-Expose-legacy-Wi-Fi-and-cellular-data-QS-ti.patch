@@ -1,7 +1,7 @@
-From 7850ab773ef48f6fddb166e1af10fce56ba06648 Mon Sep 17 00:00:00 2001
+From 4e65e52b31a6468cd0e8c7f3875ff2720108bcc3 Mon Sep 17 00:00:00 2001
 From: Danny Lin <danny@kdrag0n.dev>
 Date: Sat, 16 Oct 2021 03:27:23 -0700
-Subject: [PATCH 13/15] SystemUI: Expose legacy Wi-Fi and cellular data QS
+Subject: [PATCH 11/13] SystemUI: Expose legacy Wi-Fi and cellular data QS
  tiles
 
 We'll still use Android 12's unified internet settings and the Internet
@@ -14,18 +14,18 @@ Change-Id: I65902b38c99f61782bd9aa0ea604848fbd068bda
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/packages/SystemUI/res/values/config.xml b/packages/SystemUI/res/values/config.xml
-index 14276754e450..c99ab8bf5e9a 100644
+index c3663058130b..6b762bc1e816 100644
 --- a/packages/SystemUI/res/values/config.xml
 +++ b/packages/SystemUI/res/values/config.xml
 @@ -107,7 +107,7 @@
  
      <!-- Tiles native to System UI. Order should match "quick_settings_tiles_default" -->
      <string name="quick_settings_tiles_stock" translatable="false">
--        internet,bt,flashlight,dnd,alarm,airplane,controls,wallet,rotation,battery,cast,screenrecord,mictoggle,cameratoggle,location,hotspot,inversion,saver,dark,work,night,reverse,reduce_brightness,powershare
-+        internet,wifi,cell,bt,flashlight,dnd,alarm,airplane,controls,wallet,rotation,battery,cast,screenrecord,mictoggle,cameratoggle,location,hotspot,inversion,saver,dark,work,night,reverse,reduce_brightness,powershare
+-        internet,bt,flashlight,dnd,alarm,airplane,controls,wallet,rotation,battery,cast,screenrecord,mictoggle,cameratoggle,location,hotspot,inversion,saver,dark,work,night,reverse,reduce_brightness,powershare,nfc
++        internet,wifi,cell,bt,flashlight,dnd,alarm,airplane,controls,wallet,rotation,battery,cast,screenrecord,mictoggle,cameratoggle,location,hotspot,inversion,saver,dark,work,night,reverse,reduce_brightness,powershare,nfc
      </string>
  
      <!-- The tiles to display in QuickSettings -->
 -- 
-2.25.1
+2.35.1
 

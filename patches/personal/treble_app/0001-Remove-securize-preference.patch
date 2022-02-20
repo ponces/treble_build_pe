@@ -1,4 +1,4 @@
-From 8713857837d82343a9a47a4d0b478f78a0d7dcb1 Mon Sep 17 00:00:00 2001
+From 36d3d31dfb2b9f493c14ad2b6f9f2166564bf2a8 Mon Sep 17 00:00:00 2001
 From: Alberto Ponces <ponces26@gmail.com>
 Date: Tue, 8 Jun 2021 09:44:26 +0100
 Subject: [PATCH 1/4] Remove securize preference
@@ -63,5 +63,5 @@ index e5ac34e..c93dbb7 100644
              android:key="key_misc_removetelephony" />
  	</PreferenceCategory>
 -- 
-2.25.1
+2.35.1
 

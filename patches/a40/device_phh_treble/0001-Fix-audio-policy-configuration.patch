@@ -1,17 +1,17 @@
-From 1a43038412cf0bde7b9af6b9c1d86ef180979de4 Mon Sep 17 00:00:00 2001
+From 1d42e4b0729a6888f2fb139703308bc0e56d41ac Mon Sep 17 00:00:00 2001
 From: Alberto Ponces <ponces26@gmail.com>
 Date: Wed, 27 Oct 2021 23:58:59 +0100
 Subject: [PATCH 1/2] Fix audio policy configuration
 
 ---
  base.mk                                  |   3 +
- files/audio_policy_configuration_sec.xml | 129 +++++++++++++++++++
+ files/audio_policy_configuration_sec.xml | 129 +++++++++++++++++++++++
  rw-system.sh                             |   4 +
  3 files changed, 136 insertions(+)
  create mode 100644 files/audio_policy_configuration_sec.xml
 
 diff --git a/base.mk b/base.mk
-index feb5bbd..79c919a 100644
+index c05009d..1214fb3 100644
 --- a/base.mk
 +++ b/base.mk
 @@ -42,6 +42,9 @@ PRODUCT_COPY_FILES += \
@@ -160,20 +160,20 @@ index 0000000..a7b0198
 +    </modules>
 +</audioPolicyConfiguration>
 diff --git a/rw-system.sh b/rw-system.sh
-index c663936..a31c7af 100644
+index 6735187..af3a101 100644
 --- a/rw-system.sh
 +++ b/rw-system.sh
-@@ -695,6 +695,10 @@ if getprop ro.vendor.build.fingerprint |grep -q -e /ASUS_I006D:;then
+@@ -693,6 +693,10 @@ if getprop ro.vendor.build.fingerprint |grep -q -e /ASUS_I006D:;then
      mount /vendor/etc/audio/ZS590KS/audio_policy_configuration_ZS590KS.xml /vendor/etc/audio/sku_$sku/audio_policy_configuration.xml
  fi
-
+ 
 +if getprop ro.vendor.build.fingerprint | grep -qi samsung/a40; then
 +    mount /system/phh/audio_policy_configuration_sec.xml /vendor/etc/audio_policy_configuration_sec.xml
 +fi
 +
  setprop ctl.stop console
  dmesg -n 1
-     copyprop() {
+ copyprop() {
 -- 
-2.32.0
+2.35.1
 
