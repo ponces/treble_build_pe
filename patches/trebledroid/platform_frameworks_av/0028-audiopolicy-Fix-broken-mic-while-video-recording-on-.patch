@@ -1,0 +1,65 @@
+From 895a1237dcfba5bba6a8be3fd6c0c5eb27117101 Mon Sep 17 00:00:00 2001
+From: Alberto Ponces <ponces26@gmail.com>
+Date: Sun, 30 Apr 2023 23:29:04 +0100
+Subject: [PATCH 28/28] audiopolicy: Fix broken mic while video recording on
+ some Exynos devices
+This should fix
+https://github.com/phhusson/treble_experimentations/issues/2021 and
+https://github.com/phhusson/treble_experimentations/issues/2384. Credits to
+@haridhayal11.
+
+---
+ .../managerdefinitions/src/Serializer.cpp     | 29 ++++++++++++-------
+ 1 file changed, 18 insertions(+), 11 deletions(-)
+
+diff --git a/services/audiopolicy/common/managerdefinitions/src/Serializer.cpp b/services/audiopolicy/common/managerdefinitions/src/Serializer.cpp
+index ef310977b2..da2842656a 100644
+--- a/services/audiopolicy/common/managerdefinitions/src/Serializer.cpp
++++ b/services/audiopolicy/common/managerdefinitions/src/Serializer.cpp
+@@ -660,6 +660,9 @@ std::variant<status_t, RouteTraits::Element> PolicySerializer::deserialize<Route
+     }
+     route->setSink(sink);
+ 
++    // This fixes broken mic while video record on some Exynos devices
++    bool disableBackMic = property_get_bool("persist.sys.phh.disable_back_mic", false);
++
+     std::string sourcesAttr = getXmlAttribute(cur, Attributes::sources);
+     if (sourcesAttr.empty()) {
+         ALOGE("%s: No %s found", __func__, Attributes::sources);
+@@ -672,18 +675,22 @@ std::variant<status_t, RouteTraits::Element> PolicySerializer::deserialize<Route
+     char *devTag = strtok(sourcesLiteral.get(), ",");
+     while (devTag != NULL) {
+         if (strlen(devTag) != 0) {
+-            sp<PolicyAudioPort> source = ctx->findPortByTagName(devTag);
+-            if (source == NULL) {
+-                source = ctx->findPortByTagName(trim(devTag));
+-	    }
+-            if (source == NULL && false) {
+-                ALOGE("%s: no source found with name=%s", __func__, devTag);
+-                return BAD_VALUE;
+-            } else if (source == NULL) {
+-                ALOGW("Skipping route source \"%s\" as it likely has vendor extension type",
+-                        devTag);
++            if (disableBackMic && strcmp(devTag, "Built-In Back Mic") == 0) {
++                ALOGW("Skipping route source \"%s\" as it breaks video recording mic", devTag);
+             } else {
+-                sources.add(source);
++                sp<PolicyAudioPort> source = ctx->findPortByTagName(devTag);
++                if (source == NULL) {
++                    source = ctx->findPortByTagName(trim(devTag));
++                }
++                if (source == NULL && false) {
++                    ALOGE("%s: no source found with name=%s", __func__, devTag);
++                    return BAD_VALUE;
++                } else if (source == NULL) {
++                    ALOGW("Skipping route source \"%s\" as it likely has vendor extension type",
++                            devTag);
++                } else {
++                    sources.add(source);
++                }
+             }
+         }
+         devTag = strtok(NULL, ",");
+-- 
+2.25.1
+

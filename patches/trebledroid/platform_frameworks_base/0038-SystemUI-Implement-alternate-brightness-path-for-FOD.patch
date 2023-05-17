@@ -1,7 +1,7 @@
 From d799423a24210952a33b4e436756e2c05d710cab Mon Sep 17 00:00:00 2001
 From: ItsLynix <71310187+ItsLynix@users.noreply.github.com>
 Date: Sat, 28 Jan 2023 10:25:16 +0100
-Subject: [PATCH 38/38] SystemUI: Implement alternate brightness path for FOD
+Subject: [PATCH 38/39] SystemUI: Implement alternate brightness path for FOD
 
 ---
  .../com/android/systemui/biometrics/UdfpsView.kt  | 15 +++++++++++++--

@@ -1,7 +1,7 @@
 From 176f0f43c83ae9c0d13a70b7bf420ea8d9477c8b Mon Sep 17 00:00:00 2001
 From: Pierre-Hugues Husson <phh@phh.me>
 Date: Sat, 12 Sep 2020 12:32:50 +0200
-Subject: [PATCH 13/27] No longer make re-assigning legacy audio groups fatal.
+Subject: [PATCH 13/28] No longer make re-assigning legacy audio groups fatal.
  Mi9 declares AUDIO_STREAM_PATCH and AUDIO_STREAM_REROUTING which is defined
  by framework too
 

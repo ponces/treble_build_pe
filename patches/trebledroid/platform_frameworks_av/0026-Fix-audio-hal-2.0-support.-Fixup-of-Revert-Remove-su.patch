@@ -1,7 +1,7 @@
 From cf1473867261b0a32d48bffe61728bc2f324787d Mon Sep 17 00:00:00 2001
 From: Pierre-Hugues Husson <phh@phh.me>
 Date: Wed, 9 Nov 2022 17:10:52 -0500
-Subject: [PATCH 26/27] Fix audio hal 2.0 support. Fixup of Revert "Remove
+Subject: [PATCH 26/28] Fix audio hal 2.0 support. Fixup of Revert "Remove
  support for audio HAL V2 from the framework"
 
 ---

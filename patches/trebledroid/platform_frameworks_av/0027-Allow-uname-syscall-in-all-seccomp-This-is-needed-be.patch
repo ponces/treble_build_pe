@@ -1,7 +1,7 @@
 From 59c84fd75ea2540641ade78b519e1859a48b1a69 Mon Sep 17 00:00:00 2001
 From: Pierre-Hugues Husson <phh@phh.me>
 Date: Wed, 29 Mar 2023 16:53:18 -0400
-Subject: [PATCH 27/27] Allow uname syscall in all seccomp -- This is needed
+Subject: [PATCH 27/28] Allow uname syscall in all seccomp -- This is needed
  because of the getCallingSid change in fw/n libbinder
 
 ---

@@ -1,7 +1,7 @@
 From b5e507c9e52b9d616c5070eaa399aa8ac9c25f59 Mon Sep 17 00:00:00 2001
 From: Raphael Mounier <mounierr07@gmail.com>
 Date: Sat, 6 Aug 2022 18:08:36 +0200
-Subject: [PATCH 03/38] Fix env empty string - ANDROID_STORAGE
+Subject: [PATCH 03/39] Fix env empty string - ANDROID_STORAGE
 
 Huawei hi6250 define in init.hi6250.rc ANDROID_STORAGE to "", so check empty string and replace with default path. Apply change for all env directory
 ---

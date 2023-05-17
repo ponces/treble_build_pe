@@ -1,7 +1,7 @@
 From 0d5208ef62383ee415e6eaafe32c14ed5b77a6ac Mon Sep 17 00:00:00 2001
 From: Pierre-Hugues Husson <phh@phh.me>
 Date: Mon, 13 Apr 2020 21:01:16 +0200
-Subject: [PATCH 08/27] There are three SCO devices. Fallback from one to the
+Subject: [PATCH 08/28] There are three SCO devices. Fallback from one to the
  others if needed
 
 Change-Id: I414dcb6b154855c00cb8520b23dc1069827864b2
