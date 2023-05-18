@@ -1,20 +1,20 @@
 From 965a8782b744b61291b827ee5506d449aa6e94f4 Mon Sep 17 00:00:00 2001
 From: Alberto Ponces <ponces26@gmail.com>
 Date: Sun, 7 May 2023 22:39:30 +0000
-Subject: [PATCH 3/3] treble: Force enable Wifi Display
+Subject: [PATCH 3/3] treble: Force enable Wireless Display
 
 ---
  system.prop | 3 +++
  1 file changed, 3 insertions(+)
 
 diff --git a/system.prop b/system.prop
-index f977610..b4e9353 100644
+index fa2a5c9..6270c41 100644
 --- a/system.prop
 +++ b/system.prop
-@@ -43,3 +43,6 @@ bluetooth.profile.pan.nap.enabled?=true
- bluetooth.profile.pan.panu.enabled?=true
- bluetooth.profile.pbap.server.enabled?=true
- bluetooth.profile.sap.server.enabled?=true
+@@ -49,3 +49,6 @@ bluetooth.profile.sap.server.enabled?=true
+ 
+ # Samsung vendors default to a Samsung-specific gadget for MTP. Set this to use AOSP's functionfs MTP
+ vendor.usb.use_ffs_mtp=1
 +
 +# Wireless Display
 +persist.debug.wfd.enable=1
