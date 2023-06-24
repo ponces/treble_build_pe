@@ -110,9 +110,9 @@ generatePackages() {
 generateOta() {
     echo "--> Generating OTA file"
     version="$(date +v%Y.%m.%d)"
-    timestamp="$(date +%s)"
+    timestamp="$(date +%s -d '-2hours')"
     json="{\"version\": \"$version\",\"date\": \"$timestamp\",\"variants\": ["
-    find $BD/ -name "PixelExperience_*" | {
+    find $BD/ -name "PixelExperience_*" | sort | {
         while read file; do
             filename="$(basename $file)"
             if [[ $filename == *"vndklite"* ]]; then
