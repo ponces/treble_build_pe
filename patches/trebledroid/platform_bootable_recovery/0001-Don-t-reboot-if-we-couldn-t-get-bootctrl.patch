@@ -1,4 +1,4 @@
-From bd057612eb5e26103dc3d748e871c6eaa0875edc Mon Sep 17 00:00:00 2001
+From 674432d3c5e1a30eb77a0db24672fca9615f4edf Mon Sep 17 00:00:00 2001
 From: Pierre-Hugues Husson <phh@phh.me>
 Date: Thu, 12 Sep 2019 20:31:07 +0200
 Subject: [PATCH] Don't reboot if we couldn't get bootctrl
@@ -9,10 +9,10 @@ Change-Id: Id1793660bd1c97ab369607f58a772ca3512ec1af
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/update_verifier/update_verifier.cpp b/update_verifier/update_verifier.cpp
-index a042f900..ea3645af 100644
+index 88fcfa50..097a2c4e 100644
 --- a/update_verifier/update_verifier.cpp
 +++ b/update_verifier/update_verifier.cpp
-@@ -310,7 +310,7 @@ int update_verifier(int argc, char** argv) {
+@@ -332,7 +332,7 @@ int update_verifier(int argc, char** argv) {
    sp<IBootControl> module = IBootControl::getService();
    if (module == nullptr) {
      LOG(ERROR) << "Error getting bootctrl module.";

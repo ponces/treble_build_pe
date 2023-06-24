@@ -1,0 +1,44 @@
+From c0aee439c6789494e3dcac9e002c2acf0fed71c7 Mon Sep 17 00:00:00 2001
+From: Pierre-Hugues Husson <phh@phh.me>
+Date: Mon, 20 Dec 2021 15:01:41 -0500
+Subject: [PATCH 30/39] Dynamically resize boot animation to match screen size
+
+Change-Id: I54e49fc6b8c670103852e212d1416e27ff976205
+---
+ cmds/bootanimation/BootAnimation.cpp | 20 ++++++++++++++++++++
+ 1 file changed, 20 insertions(+)
+
+diff --git a/cmds/bootanimation/BootAnimation.cpp b/cmds/bootanimation/BootAnimation.cpp
+index 53a84bd1b21e..327d12f6d299 100644
+--- a/cmds/bootanimation/BootAnimation.cpp
++++ b/cmds/bootanimation/BootAnimation.cpp
+@@ -583,6 +583,26 @@ status_t BootAnimation::readyToRun() {
+     mFlingerSurface = s;
+     mTargetInset = -1;
+ 
++    SLOGE("Got screen size %d, animation size %d", mWidth, mAnimation->width);
++    int origWidth = mAnimation->width;
++    if ( mAnimation->width*2 < mWidth ) {
++	    SLOGE("Making animation bigger");
++	    mAnimation->width *= 2;
++	    mAnimation->height *= 2;
++    } else if ( mWidth < mAnimation->width ) {
++	    SLOGE("Making animation smaller");
++	    mAnimation->width /= 2;
++	    mAnimation->height /= 2;
++    }
++    for (Animation::Part& part : mAnimation->parts) {
++	    for(auto& frame: part.frames) {
++		    if(frame.trimWidth == origWidth && frame.trimX == 0 && frame.trimY == 0) {
++			    frame.trimWidth = mAnimation->width;
++			    frame.trimHeight = mAnimation->height;
++		    }
++	    }
++    }
++
+     // Rotate the boot animation according to the value specified in the sysprop
+     // ro.bootanim.set_orientation_<display_id>. Four values are supported: ORIENTATION_0,
+     // ORIENTATION_90, ORIENTATION_180 and ORIENTATION_270.
+-- 
+2.25.1
+

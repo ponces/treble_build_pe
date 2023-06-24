@@ -1,12 +1,11 @@
-From 895a1237dcfba5bba6a8be3fd6c0c5eb27117101 Mon Sep 17 00:00:00 2001
+From 02df9d0874cd6a77f6f7c40d3cc7bf2255cd5d29 Mon Sep 17 00:00:00 2001
 From: Alberto Ponces <ponces26@gmail.com>
 Date: Sun, 30 Apr 2023 23:29:04 +0100
 Subject: [PATCH 28/28] audiopolicy: Fix broken mic while video recording on
- some Exynos devices
-This should fix
-https://github.com/phhusson/treble_experimentations/issues/2021 and
-https://github.com/phhusson/treble_experimentations/issues/2384. Credits to
-@haridhayal11.
+ some Exynos devices This should fix
+ https://github.com/phhusson/treble_experimentations/issues/2021 and
+ https://github.com/phhusson/treble_experimentations/issues/2384. Credits to
+ @haridhayal11.
 
 ---
  .../managerdefinitions/src/Serializer.cpp     | 29 ++++++++++++-------

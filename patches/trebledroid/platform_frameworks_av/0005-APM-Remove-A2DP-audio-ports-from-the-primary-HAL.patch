@@ -1,4 +1,4 @@
-From a0294d7c50f02cb42494ff38dd8d877fc7b6a1f4 Mon Sep 17 00:00:00 2001
+From d7ec7c2855c9baa5b3da20e17ebbb7518c30af8c Mon Sep 17 00:00:00 2001
 From: Peter Cai <peter@typeblog.net>
 Date: Thu, 25 Aug 2022 13:30:29 -0400
 Subject: [PATCH 05/28] APM: Remove A2DP audio ports from the primary HAL

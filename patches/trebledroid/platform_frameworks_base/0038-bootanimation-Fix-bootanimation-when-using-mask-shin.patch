@@ -1,0 +1,65 @@
+From aae679307b292a9f8501b322176d7f39819a6261 Mon Sep 17 00:00:00 2001
+From: Pierre-Hugues Husson <phh@phh.me>
+Date: Wed, 10 May 2023 11:28:27 -0400
+Subject: [PATCH 39/39] bootanimation: Fix bootanimation when using mask+shine
+ rather than animation
+
+This was broken by the commit that automatically resizes animations
+
+Fixes: e27e0e177fe88584a280e0f7f624c249623efea1
+---
+ cmds/bootanimation/BootAnimation.cpp | 38 +++++++++++++++-------------
+ 1 file changed, 20 insertions(+), 18 deletions(-)
+
+diff --git a/cmds/bootanimation/BootAnimation.cpp b/cmds/bootanimation/BootAnimation.cpp
+index 327d12f6d299..2449b27aae3d 100644
+--- a/cmds/bootanimation/BootAnimation.cpp
++++ b/cmds/bootanimation/BootAnimation.cpp
+@@ -583,24 +583,26 @@ status_t BootAnimation::readyToRun() {
+     mFlingerSurface = s;
+     mTargetInset = -1;
+ 
+-    SLOGE("Got screen size %d, animation size %d", mWidth, mAnimation->width);
+-    int origWidth = mAnimation->width;
+-    if ( mAnimation->width*2 < mWidth ) {
+-	    SLOGE("Making animation bigger");
+-	    mAnimation->width *= 2;
+-	    mAnimation->height *= 2;
+-    } else if ( mWidth < mAnimation->width ) {
+-	    SLOGE("Making animation smaller");
+-	    mAnimation->width /= 2;
+-	    mAnimation->height /= 2;
+-    }
+-    for (Animation::Part& part : mAnimation->parts) {
+-	    for(auto& frame: part.frames) {
+-		    if(frame.trimWidth == origWidth && frame.trimX == 0 && frame.trimY == 0) {
+-			    frame.trimWidth = mAnimation->width;
+-			    frame.trimHeight = mAnimation->height;
+-		    }
+-	    }
++    if ( mAnimation != nullptr ) {
++        SLOGE("Got screen size %d, animation size %d", mWidth, mAnimation->width);
++        int origWidth = mAnimation->width;
++        if ( mAnimation->width*2 < mWidth ) {
++            SLOGE("Making animation bigger");
++            mAnimation->width *= 2;
++            mAnimation->height *= 2;
++        } else if ( mWidth < mAnimation->width ) {
++            SLOGE("Making animation smaller");
++            mAnimation->width /= 2;
++            mAnimation->height /= 2;
++        }
++        for (Animation::Part& part : mAnimation->parts) {
++            for(auto& frame: part.frames) {
++                if(frame.trimWidth == origWidth && frame.trimX == 0 && frame.trimY == 0) {
++                    frame.trimWidth = mAnimation->width;
++                    frame.trimHeight = mAnimation->height;
++                }
++            }
++        }
+     }
+ 
+     // Rotate the boot animation according to the value specified in the sysprop
+-- 
+2.25.1
+

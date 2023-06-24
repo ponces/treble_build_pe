@@ -1,0 +1,36 @@
+From 3397ca06046b3b73757b94da8519987b6ca01ec8 Mon Sep 17 00:00:00 2001
+From: Andy CrossGate Yan <GeForce8800Ultra@gmail.com>
+Date: Tue, 18 Apr 2023 23:48:15 +0000
+Subject: [PATCH 10/10] Fix light sensor crash on Xiaomi 13
+
+SensorService expects a scalar, but Xiaomi HAL returns a pose6DOF vector encapsulation
+Thanks @phhusson for the analysis
+
+Change-Id: Ie358321d5328d01541f455d6af86944ff413c9c9
+---
+ services/sensorservice/AidlSensorHalWrapper.cpp | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
+
+diff --git a/services/sensorservice/AidlSensorHalWrapper.cpp b/services/sensorservice/AidlSensorHalWrapper.cpp
+index f67c610550..32fd9240b3 100644
+--- a/services/sensorservice/AidlSensorHalWrapper.cpp
++++ b/services/sensorservice/AidlSensorHalWrapper.cpp
+@@ -171,7 +171,14 @@ void convertToSensorEvent(const Event &src, sensors_event_t *dst) {
+         case SensorType::MOTION_DETECT:
+         case SensorType::HEART_BEAT:
+         case SensorType::LOW_LATENCY_OFFBODY_DETECT: {
+-            dst->data[0] = src.payload.get<Event::EventPayload::scalar>();
++            if (src.payload.getTag() == Event::EventPayload::pose6DOF) {
++                auto d = src.payload.get<Event::EventPayload::pose6DOF>();
++                auto dstr = ::android::internal::ToString(d);
++                // ALOGE("Received 6DOF for expected scalar %s", dstr.c_str());
++                dst->data[0] = d.values[0];
++            } else {
++                dst->data[0] = src.payload.get<Event::EventPayload::scalar>();
++            }
+             break;
+         }
+ 
+-- 
+2.25.1
+

@@ -1,18 +1,18 @@
-From ab391255baeac3660c9eb6f0556bf897669c7246 Mon Sep 17 00:00:00 2001
+From 2975460eef8a8f76ca1598b68cbc23d1d0f67a2c Mon Sep 17 00:00:00 2001
 From: Alberto Ponces <ponces26@gmail.com>
 Date: Wed, 25 Dec 2019 12:34:05 +0200
 Subject: [PATCH 1/3] Rework securize tweak
 
 ---
  base.mk      |  1 -
- rw-system.sh | 54 ++++++++++++++++++++++++++++++----------------------
- 2 files changed, 32 insertions(+), 23 deletions(-)
+ rw-system.sh | 49 ++++++++++++++++++++++++++++++-------------------
+ 2 files changed, 30 insertions(+), 20 deletions(-)
 
 diff --git a/base.mk b/base.mk
-index d9c3ca6..b809100 100644
+index b9298a2..32a797f 100644
 --- a/base.mk
 +++ b/base.mk
-@@ -158,7 +158,6 @@ PRODUCT_PACKAGES += \
+@@ -180,7 +180,6 @@ PRODUCT_PACKAGES += \
  	resetprop_phh
  
  PRODUCT_COPY_FILES += \
@@ -21,10 +21,10 @@ index d9c3ca6..b809100 100644
  
  PRODUCT_COPY_FILES += \
 diff --git a/rw-system.sh b/rw-system.sh
-index 5bfa270..5406110 100644
+index 9a90a29..f178bd1 100644
 --- a/rw-system.sh
 +++ b/rw-system.sh
-@@ -701,35 +701,59 @@ copyprop() {
+@@ -739,32 +739,59 @@ copyprop() {
          resetprop_phh "$1" "$(getprop "$2")"
      fi
  }
@@ -84,19 +84,13 @@ index 5bfa270..5406110 100644
 +    copyprop ro.product.system.manufacturer ro.product.vendor.manufacturer
 +    copyprop ro.product.product.manufacturer ro.product.vendor.manufacturer
 +    copyprop ro.product.system_ext.manufacturer ro.product.vendor.manufacturer
--    (getprop ro.vendor.build.security_patch; getprop ro.keymaster.xxx.security_patch) |sort |tail -n 1 |while read v;do
--        [ -n "$v" ] && resetprop_phh ro.build.version.security_patch "$v"
--    done
+     (getprop ro.vendor.build.security_patch; getprop ro.keymaster.xxx.security_patch) |sort |tail -n 1 |while read v;do
+         [ -n "$v" ] && resetprop_phh ro.build.version.security_patch "$v"
+     done
+@@ -783,22 +810,6 @@ if [ -f /system/phh/secure ] || [ -f /metadata/phh/secure ];then
  
-     resetprop_phh ro.build.tags release-keys
-     resetprop_phh ro.boot.vbmeta.device_state locked
-@@ -743,25 +767,6 @@ if [ -f /system/phh/secure ] || [ -f /metadata/phh/secure ];then
-     resetprop_phh ro.build.type user
-     resetprop_phh ro.build.selinux 0
+     resetprop_phh ro.adb.secure 1
  
--    resetprop_phh ro.adb.secure 1
--    setprop ctl.restart adbd
--
 -    # Hide system/xbin/su
 -    mount /mnt/phh/empty_dir /system/xbin
 -    mount /mnt/phh/empty_dir /system/app/me.phh.superuser

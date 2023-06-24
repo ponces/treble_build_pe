@@ -1,4 +1,4 @@
-From 2984d33944c6257c446e7f7808108e36ccbdd598 Mon Sep 17 00:00:00 2001
+From 6a688a65d8558711065166c1bd64f57322b92372 Mon Sep 17 00:00:00 2001
 From: Pierre-Hugues Husson <phh@phh.me>
 Date: Wed, 26 Oct 2022 18:02:18 -0400
 Subject: [PATCH] Restore back the behavior of isValid(): It is legal to have

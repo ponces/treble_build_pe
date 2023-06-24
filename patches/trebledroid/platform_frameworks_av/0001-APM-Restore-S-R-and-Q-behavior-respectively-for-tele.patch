@@ -1,4 +1,4 @@
-From 0b564f93f6e0994d3790e02cd6959c92003ecf2d Mon Sep 17 00:00:00 2001
+From 8b5b3e58ebe5b9491d47534f479a96340e8cdf82 Mon Sep 17 00:00:00 2001
 From: Peter Cai <peter@typeblog.net>
 Date: Thu, 18 Aug 2022 15:44:46 -0400
 Subject: [PATCH 01/28] APM: Restore S, R and Q behavior respectively for
@@ -36,7 +36,7 @@ Change-Id: I56d36d2aef4319935cb88a3e4771b23c6d5b2145
  2 files changed, 143 insertions(+), 57 deletions(-)
 
 diff --git a/services/audiopolicy/managerdefault/AudioPolicyManager.cpp b/services/audiopolicy/managerdefault/AudioPolicyManager.cpp
-index 4573382a06..b7d0dbcca4 100644
+index f625fdb3be..6c45696005 100644
 --- a/services/audiopolicy/managerdefault/AudioPolicyManager.cpp
 +++ b/services/audiopolicy/managerdefault/AudioPolicyManager.cpp
 @@ -675,6 +675,17 @@ status_t AudioPolicyManager::updateCallRoutingInternal(
@@ -148,7 +148,7 @@ index 4573382a06..b7d0dbcca4 100644
  bool AudioPolicyManager::isDeviceOfModule(
          const sp<DeviceDescriptor>& devDesc, const char *moduleId) const {
      sp<HwModule> module = mHwModules.getModuleFromName(moduleId);
-@@ -4541,78 +4605,97 @@ status_t AudioPolicyManager::createAudioPatchInternal(const struct audio_patch *
+@@ -4550,78 +4614,97 @@ status_t AudioPolicyManager::createAudioPatchInternal(const struct audio_patch *
                  // in config XML to reach the sink so that is can be declared as available.
                  audio_io_handle_t output = AUDIO_IO_HANDLE_NONE;
                  sp<SwAudioOutputDescriptor> outputDesc;

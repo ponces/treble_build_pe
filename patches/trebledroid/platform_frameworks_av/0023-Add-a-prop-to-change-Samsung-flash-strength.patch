@@ -1,4 +1,4 @@
-From aa6252c7b7f04a66dadac9c3c14607c45f9f89d0 Mon Sep 17 00:00:00 2001
+From 82caf1ca2ead513c393f16f99ac8de189b5ddf9e Mon Sep 17 00:00:00 2001
 From: Pierre-Hugues Husson <phh@phh.me>
 Date: Sat, 16 Apr 2022 14:30:14 -0400
 Subject: [PATCH 23/28] Add a prop to change Samsung flash strength
@@ -21,7 +21,7 @@ index 1faeb60ba7..8c588065cf 100644
      ],
  
 diff --git a/services/camera/libcameraservice/common/hidl/HidlProviderInfo.cpp b/services/camera/libcameraservice/common/hidl/HidlProviderInfo.cpp
-index 070c9aeeae..41830f2c82 100644
+index 367ffb8cdc..362945a1ea 100644
 --- a/services/camera/libcameraservice/common/hidl/HidlProviderInfo.cpp
 +++ b/services/camera/libcameraservice/common/hidl/HidlProviderInfo.cpp
 @@ -29,6 +29,7 @@

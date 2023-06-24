@@ -1,0 +1,132 @@
+From 79938eae61e6970f7fe5454570423d358b5b0006 Mon Sep 17 00:00:00 2001
+From: Pierre-Hugues Husson <phh@phh.me>
+Date: Sat, 27 May 2023 06:41:32 -0400
+Subject: [PATCH 7/8] Add properties to disable some features/commands/states
+ that the ble chip declared but doesnt actually support
+
+---
+ system/gd/hci/controller.cc | 73 +++++++++++++++++++++++++++++++++++--
+ 1 file changed, 69 insertions(+), 4 deletions(-)
+
+diff --git a/system/gd/hci/controller.cc b/system/gd/hci/controller.cc
+index 50342d639e..f57ed588d4 100644
+--- a/system/gd/hci/controller.cc
++++ b/system/gd/hci/controller.cc
+@@ -16,6 +16,7 @@
+ 
+ #include "hci/controller.h"
+ 
++#include <base/strings/string_split.h>
+ #include <future>
+ #include <memory>
+ #include <string>
+@@ -25,6 +26,8 @@
+ #include "hci/hci_layer.h"
+ #include "hci_controller_generated.h"
+ #include "os/metrics.h"
++#include "os/system_properties.h"
++using bluetooth::os::GetSystemProperty;
+ 
+ namespace bluetooth {
+ namespace hci {
+@@ -259,7 +262,23 @@ struct Controller::impl {
+     ASSERT(complete_view.IsValid());
+     ErrorCode status = complete_view.GetStatus();
+     ASSERT_LOG(status == ErrorCode::SUCCESS, "Status 0x%02hhx, %s", status, ErrorCodeText(status).c_str());
+-    local_supported_commands_ = complete_view.GetSupportedCommands();
++    //local_supported_commands_ = complete_view.GetSupportedCommands();
++
++    auto local_commands = complete_view.GetSupportedCommands();
++    std::string ignored_commands = GetSystemProperty("persist.sys.bt.unsupported.commands").value_or("");
++
++    if (ignored_commands != "") {
++        auto s = base::SplitString(ignored_commands, ",", base::TRIM_WHITESPACE, base::SPLIT_WANT_ALL);
++        for(auto command: s) {
++            int index = std::stoi(command);
++            LOG_WARN("Ignoring local supported command %d", index);
++            uint16_t byte_index = index / 10;
++            uint16_t bit_index = index % 10;
++            local_commands[byte_index] &= ~(1 << bit_index);
++        }
++    }
++
++    local_supported_commands_ = local_commands;
+   }
+ 
+   void read_local_extended_features_complete_handler(std::promise<void> promise, CommandCompleteView view) {
+@@ -268,7 +287,25 @@ struct Controller::impl {
+     ErrorCode status = complete_view.GetStatus();
+     ASSERT_LOG(status == ErrorCode::SUCCESS, "Status 0x%02hhx, %s", status, ErrorCodeText(status).c_str());
+     uint8_t page_number = complete_view.GetPageNumber();
+-    extended_lmp_features_array_.push_back(complete_view.GetExtendedLmpFeatures());
++
++    //extended_lmp_features_array_.push_back(complete_view.GetExtendedLmpFeatures());
++    auto lmp_features = complete_view.GetExtendedLmpFeatures();
++
++    std::string ignored_features = GetSystemProperty("persist.sys.bt.unsupported.ogfeatures").value_or("");
++
++    if (ignored_features != "") {
++        auto s = base::SplitString(ignored_features, ",", base::TRIM_WHITESPACE, base::SPLIT_WANT_ALL);
++        int offset = page_number * 64;
++        for(auto feature: s) {
++            int index = std::stoi(feature) - offset;
++            if(index >= 0 && index < 64) {
++                LOG_WARN("Ignoring local supported feature %d", index);
++                lmp_features &= ~(1ULL << index);
++            }
++        }
++    }
++    extended_lmp_features_array_.push_back(lmp_features);
++
+     bluetooth::os::LogMetricBluetoothLocalSupportedFeatures(page_number, complete_view.GetExtendedLmpFeatures());
+     // Query all extended features
+     if (page_number < complete_view.GetMaximumPageNumber()) {
+@@ -348,7 +385,21 @@ struct Controller::impl {
+     ASSERT(complete_view.IsValid());
+     ErrorCode status = complete_view.GetStatus();
+     ASSERT_LOG(status == ErrorCode::SUCCESS, "Status 0x%02hhx, %s", status, ErrorCodeText(status).c_str());
+-    le_local_supported_features_ = complete_view.GetLeFeatures();
++
++    //le_local_supported_features_ = complete_view.GetLeFeatures();
++    auto local_features = complete_view.GetLeFeatures();
++    std::string ignored_features = GetSystemProperty("persist.sys.bt.unsupported.lefeatures").value_or("");
++
++    if (ignored_features != "") {
++        auto s = base::SplitString(ignored_features, ",", base::TRIM_WHITESPACE, base::SPLIT_WANT_ALL);
++        for(auto feature: s) {
++            int index = std::stoi(feature);
++            LOG_WARN("Ignoring local supported feature %d", index);
++            local_features &= ~(1ULL << index);
++        }
++    }
++
++    le_local_supported_features_ = local_features;
+   }
+ 
+   void le_read_supported_states_handler(CommandCompleteView view) {
+@@ -356,7 +407,21 @@ struct Controller::impl {
+     ASSERT(complete_view.IsValid());
+     ErrorCode status = complete_view.GetStatus();
+     ASSERT_LOG(status == ErrorCode::SUCCESS, "Status 0x%02hhx, %s", status, ErrorCodeText(status).c_str());
+-    le_supported_states_ = complete_view.GetLeStates();
++    //le_supported_states_ = complete_view.GetLeStates();
++
++    auto local_states = complete_view.GetLeStates();
++    std::string ignored_states = GetSystemProperty("persist.sys.bt.unsupported.states").value_or("");
++
++    if (ignored_states != "") {
++        auto s = base::SplitString(ignored_states, ",", base::TRIM_WHITESPACE, base::SPLIT_WANT_ALL);
++        for(auto state: s) {
++            int index = std::stoi(state);
++            LOG_WARN("Ignoring local supported state %d", index);
++            local_states &= ~(1ULL << index);
++        }
++    }
++
++    le_supported_states_ = local_states;
+   }
+ 
+   void le_read_connect_list_size_handler(CommandCompleteView view) {
+-- 
+2.25.1
+

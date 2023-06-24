@@ -1,0 +1,78 @@
+From d7037a9f94800e8107c0e847b572298c6d063c99 Mon Sep 17 00:00:00 2001
+From: Pierre-Hugues Husson <phh@phh.me>
+Date: Sat, 27 May 2023 05:36:21 -0400
+Subject: [PATCH 16/18] watchdogd: Support pinging two watchdogs
+
+---
+ watchdogd/watchdogd.cpp | 33 +++++++++++++++++++++++++++++++++
+ 1 file changed, 33 insertions(+)
+
+diff --git a/watchdogd/watchdogd.cpp b/watchdogd/watchdogd.cpp
+index 5dc41e6b8..69abb4e2b 100644
+--- a/watchdogd/watchdogd.cpp
++++ b/watchdogd/watchdogd.cpp
+@@ -20,12 +20,15 @@
+ #include <stdlib.h>
+ #include <string.h>
+ #include <unistd.h>
++#include <sys/stat.h>
+ 
+ #include <android-base/logging.h>
+ 
+ #define DEV_NAME "/dev/watchdog"
++#define DEV_NAME2 "/dev/watchdog1"
+ 
+ int main(int argc, char** argv) {
++    struct stat st_buf;
+     android::base::InitLogging(argv, &android::base::KernelLogger);
+ 
+     int interval = 10;
+@@ -42,6 +45,13 @@ int main(int argc, char** argv) {
+         return 1;
+     }
+ 
++    int fd2 = open(DEV_NAME2, O_RDWR | O_CLOEXEC);
++    fstat(fd2, &st_buf);
++    if ((st_buf.st_mode & S_IFMT) != S_IFCHR) {
++        close(fd2);
++        fd2 = -1;
++    }
++
+     int timeout = interval + margin;
+     int ret = ioctl(fd, WDIOC_SETTIMEOUT, &timeout);
+     if (ret) {
+@@ -61,8 +71,31 @@ int main(int argc, char** argv) {
+         }
+     }
+ 
++    if(fd2 >= 0) {
++        int interval2 = interval;
++        ret = ioctl(fd2, WDIOC_SETTIMEOUT, &timeout);
++        if (ret) {
++            PLOG(ERROR) << "Failed to set2 timeout to " << timeout;
++            ret = ioctl(fd, WDIOC_GETTIMEOUT, &timeout);
++            if (ret) {
++                PLOG(ERROR) << "Failed to get timeout";
++            } else {
++                if (timeout > margin) {
++                    interval2 = timeout - margin;
++                } else {
++                    interval2 = 1;
++                }
++                LOG(WARNING) << "Adjusted interval to timeout returned by driver: "
++                             << "timeout " << timeout << ", interval " << interval2 << ", margin "
++                             << margin;
++            }
++        }
++        if(interval2 < interval) interval = interval2;
++    }
++
+     while (true) {
+         write(fd, "", 1);
++        if (fd2 >= 0) write(fd2, "", 1);
+         sleep(interval);
+     }
+ }
+-- 
+2.25.1
+

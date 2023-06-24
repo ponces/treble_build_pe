@@ -1,7 +1,7 @@
-From 88e0ca8932f5480ae3b70ae456f5a1f7f7713caa Mon Sep 17 00:00:00 2001
+From a4582bfe878d6889f426974346ccd85ac1e1453a Mon Sep 17 00:00:00 2001
 From: Pierre-Hugues Husson <phh@phh.me>
 Date: Sun, 17 Oct 2021 17:17:13 -0400
-Subject: [PATCH 5/6] Don't abort when failing to get real-time priority
+Subject: [PATCH 5/8] Don't abort when failing to get real-time priority
 
 On some devices (like OP6), for unknown reason, trying to go to realtime
 fails with EPERM.
@@ -32,10 +32,10 @@ index 9d52524b4b..95a129d2b5 100644
  #endif
    }
 diff --git a/system/btif/src/btif_a2dp_source.cc b/system/btif/src/btif_a2dp_source.cc
-index f13abac71a..a6a84b519e 100644
+index 4ca2c8c265..db5ff20444 100644
 --- a/system/btif/src/btif_a2dp_source.cc
 +++ b/system/btif/src/btif_a2dp_source.cc
-@@ -364,7 +364,7 @@ static void btif_a2dp_source_startup_delayed() {
+@@ -365,7 +365,7 @@ static void btif_a2dp_source_startup_delayed() {
    LOG_INFO("%s: state=%s", __func__, btif_a2dp_source_cb.StateStr().c_str());
    if (!btif_a2dp_source_thread.EnableRealTimeScheduling()) {
  #if defined(OS_ANDROID)

@@ -1,0 +1,229 @@
+From 3f561dde1aa641bca683d4b5cc575aefe11bd7e5 Mon Sep 17 00:00:00 2001
+From: Raphael Mounier <mounierr07@gmail.com>
+Date: Sun, 21 May 2023 16:15:42 +0200
+Subject: [PATCH 17/18] healthd : offline charger fix screen off 3/3
+
+When the phone is charging, the animation never turns off on huawei phones (kernel 4.9). This patch allows you to turn it off by setting the brightness to 0. This problem may also exist on other phone models.
+
+The charge service must be started with the root user to be able to access
+/sys/class/leds/lcd_backlight0 ....
+
+You must also set the following selinux rules:
+
+attribute sysfs_backlight_attr;
+allow load sysfs_backlight_attr:file rw_file_perms;
+---
+ healthd/healthd_draw.cpp                      | 82 ++++++++++++++++++-
+ healthd/healthd_draw.h                        |  6 ++
+ healthd/healthd_mode_charger.cpp              | 26 +++++-
+ .../charger/healthd_mode_charger.h            |  1 +
+ 4 files changed, 108 insertions(+), 7 deletions(-)
+
+diff --git a/healthd/healthd_draw.cpp b/healthd/healthd_draw.cpp
+index 7c7931944..2266233e1 100644
+--- a/healthd/healthd_draw.cpp
++++ b/healthd/healthd_draw.cpp
+@@ -15,18 +15,28 @@
+  */
+ 
+ #include <android-base/stringprintf.h>
++#include <android-base/file.h>
+ #include <batteryservice/BatteryService.h>
+ #include <cutils/klog.h>
++#include <cutils/properties.h>
++#include <unistd.h>
+ 
+ #include "healthd_draw.h"
+ 
++
+ #if !defined(__ANDROID_VNDK__)
+ #include "charger.sysprop.h"
+ #endif
+ 
+-#define LOGE(x...) KLOG_ERROR("charger", x);
+-#define LOGW(x...) KLOG_WARNING("charger", x);
+-#define LOGV(x...) KLOG_DEBUG("charger", x);
++#define HARDWARE_MODEL "ro.hardware"
++
++#define LOGE(x...) KLOG_ERROR("charger", x); fprintf(stderr,x);
++#define LOGW(x...) KLOG_WARNING("charger", x); fprintf(stderr,x);
++#define LOGV(x...) KLOG_DEBUG("charger", x); fprintf(stderr,x);
++
++using ::android::base::ReadFileToString;
++using ::android::base::WriteStringToFile;
++
+ 
+ static bool get_split_screen() {
+ #if !defined(__ANDROID_VNDK__)
+@@ -73,10 +83,41 @@ HealthdDraw::HealthdDraw(animation* anim)
+         (res = gr_init_font(anim->text_clock.font_file.c_str(), &anim->text_clock.font)) < 0) {
+         LOGE("Could not load time font (%d)\n", res);
+     }
++
+     if (!anim->text_percent.font_file.empty() &&
+         (res = gr_init_font(anim->text_percent.font_file.c_str(), &anim->text_percent.font)) < 0) {
+         LOGE("Could not load percent font (%d)\n", res);
+     }
++
++    // Try to find kirin/huawei hardware
++    char prop_hardware[PROPERTY_VALUE_MAX] = {};
++
++    is_kirin = false;
++    if (property_get(HARDWARE_MODEL, prop_hardware, "") > 0) {
++        if (!strcmp(prop_hardware,"hi3660")
++            || !strcmp(prop_hardware,"hi3670")
++            || !strcmp(prop_hardware,"hi6250")
++            || !strcmp(prop_hardware,"kirin"))
++        {
++            LOGV("Kirin Huawei found\n");
++            is_kirin=true;
++
++            mMaxBrightness=4095;
++            std::string content_str;
++
++            if (ReadFileToString("/sys/class/leds/lcd_backlight0/max_brightness", &content_str)) {
++                mMaxBrightness = std::stoi(content_str);
++            }
++            else {
++                if (ReadFileToString("/sys/class/leds/lcd_backlight/max_brightness", &content_str)) {
++                    mMaxBrightness = std::stoi(content_str);
++                }
++            }
++
++            // Set max brightness
++            set_brightness(mMaxBrightness);
++        }
++    }
+ }
+ 
+ HealthdDraw::~HealthdDraw() {}
+@@ -94,9 +135,42 @@ void HealthdDraw::redraw_screen(const animation* batt_anim, GRSurface* surf_unkn
+     gr_flip();
+ }
+ 
++void HealthdDraw::set_brightness(uint32_t value) {
++    LOGV("Kirin - Try to set brightness to %d\n",value)
++    if (WriteStringToFile(std::to_string(value), "/sys/class/leds/lcd_backlight0/brightness")==false) {
++        LOGW("Kirin - WriteStringToFile failed lcd_backlight0, unable to set brightness (lcd_backlight0)\n");
++        if (WriteStringToFile(std::to_string(0), "/sys/class/leds/lcd_backlight/brightness")==false) {
++            LOGE("Kirin - WriteStringToFile failed lcd_backlight, unable to set brightness (lcd_backlight)\n");
++        }
++    }
++}
++
++
+ void HealthdDraw::blank_screen(bool blank, int drm) {
++
+     if (!graphics_available) return;
+-    gr_fb_blank(blank, drm);
++
++    bool bmulti=gr_has_multiple_connectors();
++
++    if (bmulti && (drm==1)) {
++        KLOG_WARNING("charger", "minui graphic backend don't support multi-connector for blank screen\n");
++    }
++
++    if (is_kirin) {
++        if (blank==true) {
++            LOGV("Kirin - clear screen\n")
++            //clear_screen();
++            //gr_flip();
++            set_brightness(0);
++        }
++        else {
++            set_brightness(mMaxBrightness);
++        }
++    }
++    else {
++        LOGV("Blank screen with minui api)\n");
++        gr_fb_blank(blank, drm);
++    }
+ }
+ 
+ // support screen rotation for foldable phone
+diff --git a/healthd/healthd_draw.h b/healthd/healthd_draw.h
+index 016db8e07..e8e51748d 100644
+--- a/healthd/healthd_draw.h
++++ b/healthd/healthd_draw.h
+@@ -84,9 +84,15 @@ class HealthdDraw {
+   // true if minui init'ed OK, false if minui init failed
+   bool graphics_available;
+ 
++  // true if kirin found
++  bool is_kirin;
++  uint32_t mMaxBrightness;
++
+  private:
+   // Configures font using given animation.
+   HealthdDraw(animation* anim);
++  // Set brightness
++  void set_brightness(uint32_t value);
+ };
+ 
+ #endif  // HEALTHD_DRAW_H
+diff --git a/healthd/healthd_mode_charger.cpp b/healthd/healthd_mode_charger.cpp
+index 282ffa248..f01ffd486 100644
+--- a/healthd/healthd_mode_charger.cpp
++++ b/healthd/healthd_mode_charger.cpp
+@@ -93,9 +93,9 @@ char* locale;
+ 
+ #define LAST_KMSG_MAX_SZ (32 * 1024)
+ 
+-#define LOGE(x...) KLOG_ERROR("charger", x);
+-#define LOGW(x...) KLOG_WARNING("charger", x);
+-#define LOGV(x...) KLOG_DEBUG("charger", x);
++#define LOGE(x...) KLOG_ERROR("charger", x); fprintf(stderr,x);
++#define LOGW(x...) KLOG_WARNING("charger", x); fprintf(stderr,x);
++#define LOGV(x...) KLOG_DEBUG("charger", x); fprintf(stderr,x);
+ 
+ namespace android {
+ 
+@@ -301,6 +301,23 @@ void Charger::BlankSecScreen() {
+     }
+ }
+ 
++void Charger::UpdateLedState() {
++
++    if (!have_battery_state_) return;
++    if (health_info_.battery_level == 0 && health_info_.battery_status == BatteryStatus::UNKNOWN) return ;
++
++    // TODO set led with battery_level in % (0->100%)
++    LOGV("Battery level = %d\n",health_info_.battery_level);
++
++    /*
++    /sys/class/leds/red/brightness
++    /sys/class/leds/green/brightness
++    /sys/class/leds/blue/brightness
++    */
++
++}
++
++
+ void Charger::UpdateScreenState(int64_t now) {
+     int disp_time;
+ 
+@@ -632,6 +649,9 @@ void Charger::OnHeartbeat() {
+      * screen transitions (animations, etc)
+      */
+     UpdateScreenState(now);
++
++    // Update Led color
++    UpdateLedState();
+ }
+ 
+ void Charger::OnHealthInfoChanged(const ChargerHealthInfo& health_info) {
+diff --git a/healthd/include_charger/charger/healthd_mode_charger.h b/healthd/include_charger/charger/healthd_mode_charger.h
+index 8957a7b22..291fc7eb3 100644
+--- a/healthd/include_charger/charger/healthd_mode_charger.h
++++ b/healthd/include_charger/charger/healthd_mode_charger.h
+@@ -103,6 +103,7 @@ class Charger {
+     void ProcessHallSensor(int code);
+     void HandleInputState(int64_t now);
+     void HandlePowerSupplyState(int64_t now);
++    void UpdateLedState();
+     int InputCallback(int fd, unsigned int epevents);
+     void InitAnimation();
+     int RequestEnableSuspend();
+-- 
+2.25.1
+

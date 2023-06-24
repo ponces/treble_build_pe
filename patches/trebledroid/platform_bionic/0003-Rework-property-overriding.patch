@@ -1,7 +1,7 @@
-From 530cd7391634cd547681c99d970c3ad37f0c779f Mon Sep 17 00:00:00 2001
+From a46e75e4e82ab5de2bc4dd2b83a6f9bf8140f17b Mon Sep 17 00:00:00 2001
 From: Pierre-Hugues Husson <phh@phh.me>
 Date: Thu, 19 Jan 2023 16:44:01 -0500
-Subject: [PATCH 3/3] Rework property overriding
+Subject: [PATCH 3/4] Rework property overriding
 
 - Support property read with callback in addition to previous
   constant-size property_get

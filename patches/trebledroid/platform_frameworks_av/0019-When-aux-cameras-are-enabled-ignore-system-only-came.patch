@@ -1,4 +1,4 @@
-From 59bc698f55a267e8b4c051e4e6d044a3365d8976 Mon Sep 17 00:00:00 2001
+From 2bdb89c46004552830c91fced3a34bb3836b2a41 Mon Sep 17 00:00:00 2001
 From: Pierre-Hugues Husson <phh@phh.me>
 Date: Sat, 7 Aug 2021 11:11:39 +0200
 Subject: [PATCH 19/28] When aux cameras are enabled, ignore "system only"
@@ -10,7 +10,7 @@ Subject: [PATCH 19/28] When aux cameras are enabled, ignore "system only"
  1 file changed, 6 insertions(+), 4 deletions(-)
 
 diff --git a/services/camera/libcameraservice/common/CameraProviderManager.cpp b/services/camera/libcameraservice/common/CameraProviderManager.cpp
-index 2cb27f4ee5..99fc7247b0 100644
+index 292342238d..4a2fb94da3 100644
 --- a/services/camera/libcameraservice/common/CameraProviderManager.cpp
 +++ b/services/camera/libcameraservice/common/CameraProviderManager.cpp
 @@ -978,10 +978,12 @@ SystemCameraKind CameraProviderManager::ProviderInfo::DeviceInfo3::getSystemCame

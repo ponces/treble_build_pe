@@ -1,0 +1,36 @@
+From e9a22cd0d594da4574b549f02a7f1a7acd1b29e6 Mon Sep 17 00:00:00 2001
+From: Pierre-Hugues Husson <phh@phh.me>
+Date: Wed, 26 Oct 2022 17:59:11 -0400
+Subject: [PATCH 12/18] Fix support for devices without cgroupv2 support
+
+This is technically a revert of 1bd1746447.
+The warning inside the commit doesn't really apply to us, because the
+devices without cgroupv2 simply won't freeze processes at all
+(which is in itself an issue, but a different one)
+---
+ init/service.cpp | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/init/service.cpp b/init/service.cpp
+index bd704cf8e..188b042d9 100644
+--- a/init/service.cpp
++++ b/init/service.cpp
+@@ -662,11 +662,15 @@ Result<void> Service::Start() {
+                       limit_percent_ != -1 || !limit_property_.empty();
+     errno = -createProcessGroup(proc_attr_.uid, pid_, use_memcg);
+     if (errno != 0) {
++        PLOG(ERROR) << "createProcessGroup(" << proc_attr_.uid << ", " << pid_ <<  ") failed for service '" << name_ << "'";
++
++#if 0
+         if (char byte = 0; write((*pipefd)[1], &byte, 1) < 0) {
+             return ErrnoError() << "sending notification failed";
+         }
+         return Error() << "createProcessGroup(" << proc_attr_.uid << ", " << pid_
+                        << ") failed for service '" << name_ << "'";
++#endif
+     }
+ 
+     if (use_memcg) {
+-- 
+2.25.1
+

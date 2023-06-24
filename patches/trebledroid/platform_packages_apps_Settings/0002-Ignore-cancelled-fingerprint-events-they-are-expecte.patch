@@ -1,4 +1,4 @@
-From 870e9080c2fff774590577251d2e8fb0ccadcdd5 Mon Sep 17 00:00:00 2001
+From d25566686373d8ed918e6ee97804a95c166adc3c Mon Sep 17 00:00:00 2001
 From: Pierre-Hugues Husson <phh@phh.me>
 Date: Mon, 2 May 2022 17:44:28 -0400
 Subject: [PATCH 2/2] Ignore cancelled fingerprint events, they are expected,
@@ -10,10 +10,10 @@ Subject: [PATCH 2/2] Ignore cancelled fingerprint events, they are expected,
  2 files changed, 5 insertions(+), 1 deletion(-)
 
 diff --git a/src/com/android/settings/biometrics/fingerprint/FingerprintEnrollEnrolling.java b/src/com/android/settings/biometrics/fingerprint/FingerprintEnrollEnrolling.java
-index 2eadc33c85..720c22b316 100644
+index 368564a01f..8b22fa4269 100644
 --- a/src/com/android/settings/biometrics/fingerprint/FingerprintEnrollEnrolling.java
 +++ b/src/com/android/settings/biometrics/fingerprint/FingerprintEnrollEnrolling.java
-@@ -757,6 +757,9 @@ public class FingerprintEnrollEnrolling extends BiometricsEnrollEnrolling {
+@@ -772,6 +772,9 @@ public class FingerprintEnrollEnrolling extends BiometricsEnrollEnrolling {
  
      @Override
      public void onEnrollmentError(int errMsgId, CharSequence errString) {
@@ -23,7 +23,7 @@ index 2eadc33c85..720c22b316 100644
          onCancelEnrollment(errMsgId);
      }
  
-@@ -1105,4 +1108,4 @@ public class FingerprintEnrollEnrolling extends BiometricsEnrollEnrolling {
+@@ -1122,4 +1125,4 @@ public class FingerprintEnrollEnrolling extends BiometricsEnrollEnrolling {
              return SettingsEnums.DIALOG_FINGERPRINT_ICON_TOUCH;
          }
      }

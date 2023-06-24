@@ -1,0 +1,87 @@
+From f29b6ed94af7fbacd4dcc714c5e2e19525f0a5a8 Mon Sep 17 00:00:00 2001
+From: Pierre-Hugues Husson <phh@phh.me>
+Date: Fri, 2 Jun 2023 19:19:31 -0400
+Subject: [PATCH 40/39] Try catch around constrainNitsAndBacklightArrays, and
+ falls back to dumb curve. It crashes on Xperia 1 IV.
+
+---
+ .../server/display/DisplayDeviceConfig.java   | 58 ++++++++++---------
+ 1 file changed, 32 insertions(+), 26 deletions(-)
+
+diff --git a/services/core/java/com/android/server/display/DisplayDeviceConfig.java b/services/core/java/com/android/server/display/DisplayDeviceConfig.java
+index 44150f8f68d0..d9ec994e58de 100644
+--- a/services/core/java/com/android/server/display/DisplayDeviceConfig.java
++++ b/services/core/java/com/android/server/display/DisplayDeviceConfig.java
+@@ -1709,37 +1709,43 @@ public class DisplayDeviceConfig {
+             return;
+         }
+ 
+-        // Use the (preferred) display device config mapping
+-        final List<Point> points = map.getPoint();
+-        final int size = points.size();
+-
+-        float[] nits = new float[size];
+-        float[] backlight = new float[size];
++        try {
++            // Use the (preferred) display device config mapping
++            final List<Point> points = map.getPoint();
++            final int size = points.size();
+ 
+-        mInterpolationType = convertInterpolationType(map.getInterpolation());
+-        int i = 0;
+-        for (Point point : points) {
+-            nits[i] = point.getNits().floatValue();
+-            backlight[i] = point.getValue().floatValue();
+-            if (i > 0) {
+-                if (nits[i] < nits[i - 1]) {
+-                    Slog.e(TAG, "screenBrightnessMap must be non-decreasing, ignoring rest "
+-                            + " of configuration. Nits: " + nits[i] + " < " + nits[i - 1]);
+-                    return;
+-                }
++            float[] nits = new float[size];
++            float[] backlight = new float[size];
+ 
+-                if (backlight[i] < backlight[i - 1]) {
+-                    Slog.e(TAG, "screenBrightnessMap must be non-decreasing, ignoring rest "
+-                            + " of configuration. Value: " + backlight[i] + " < "
+-                            + backlight[i - 1]);
+-                    return;
++            mInterpolationType = convertInterpolationType(map.getInterpolation());
++            int i = 0;
++            for (Point point : points) {
++                nits[i] = point.getNits().floatValue();
++                backlight[i] = point.getValue().floatValue();
++                if (i > 0) {
++                    if (nits[i] < nits[i - 1]) {
++                        Slog.e(TAG, "screenBrightnessMap must be non-decreasing, ignoring rest "
++                                + " of configuration. Nits: " + nits[i] + " < " + nits[i - 1]);
++                        return;
++                    }
++
++                    if (backlight[i] < backlight[i - 1]) {
++                        Slog.e(TAG, "screenBrightnessMap must be non-decreasing, ignoring rest "
++                                + " of configuration. Value: " + backlight[i] + " < "
++                                + backlight[i - 1]);
++                        return;
++                    }
+                 }
++                ++i;
+             }
+-            ++i;
++            mRawNits = nits;
++            mRawBacklight = backlight;
++            constrainNitsAndBacklightArrays();
++        } catch(Throwable t) {
++            mRawNits = null;
++            mRawBacklight = null;
++            setSimpleMappingStrategyValues();
+         }
+-        mRawNits = nits;
+-        mRawBacklight = backlight;
+-        constrainNitsAndBacklightArrays();
+     }
+ 
+     private Spline loadSdrHdrRatioMap(HighBrightnessMode hbmConfig) {
+-- 
+2.25.1
+

@@ -1,0 +1,32 @@
+From cf60793721b643dc990e010a5ed356f0b2f4685c Mon Sep 17 00:00:00 2001
+From: Pierre-Hugues Husson <phh@phh.me>
+Date: Tue, 6 Jun 2023 16:17:11 +0100
+Subject: [PATCH 18/18] Disable quotas on legacy devices with encryption
+ disabled
+
+Source: https://t.me/phhtreblebuilders/20521 and https://t.me/phhtreblebuilders/20546
+---
+ fs_mgr/fs_mgr.cpp | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/fs_mgr/fs_mgr.cpp b/fs_mgr/fs_mgr.cpp
+index 1acaea3cf..c2ccd5cd5 100644
+--- a/fs_mgr/fs_mgr.cpp
++++ b/fs_mgr/fs_mgr.cpp
+@@ -370,6 +370,13 @@ static void tune_quota(const std::string& blk_device, const FstabEntry& entry,
+         return;
+     }
+ 
++    // There is no relation between quotas and encryption disabled, it's just that encryption
++    // being disabled shows that the device is pretty old, so quotas might be broken on it
++    if (!entry.fs_mgr_flags.file_encryption) {
++        LINFO << "Disabling quotas on legacy devices with encryption disabled";
++        want_quota = false;
++    }
++
+     if (!tune2fs_available()) {
+         LERROR << "Unable to " << (want_quota ? "enable" : "disable") << " quotas on " << blk_device
+                << " because " TUNE2FS_BIN " is missing";
+-- 
+2.25.1
+
