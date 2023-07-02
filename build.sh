@@ -110,7 +110,7 @@ generatePackages() {
 generateOta() {
     echo "--> Generating OTA file"
     version="$(date +v%Y.%m.%d)"
-    timestamp="$(date +%s -d '-2hours')"
+    timestamp="$START"
     json="{\"version\": \"$version\",\"date\": \"$timestamp\",\"variants\": ["
     find $BD/ -name "PixelExperience_*" | sort | {
         while read file; do
@@ -132,7 +132,7 @@ generateOta() {
     echo
 }
 
-START=`date +%s`
+START=$(date +%s)
 
 initRepos
 syncRepos
@@ -145,7 +145,7 @@ buildVndkliteVariant
 generatePackages
 generateOta
 
-END=`date +%s`
+END=$(date +%s)
 ELAPSEDM=$(($(($END-$START))/60))
 ELAPSEDS=$(($(($END-$START))-$ELAPSEDM*60))
 
