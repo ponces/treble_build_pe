@@ -1,0 +1,48 @@
+From 0f33084286e99cb289b30a41211a69acbdf12bac Mon Sep 17 00:00:00 2001
+From: Pierre-Hugues Husson <phh@phh.me>
+Date: Wed, 5 Jul 2023 10:50:36 -0400
+Subject: [PATCH 41/41] Detect Moto dynamic hardware feature
+
+Moto added a custom node in sysconfig XMLs:
+<unavailable-feature-conditional />
+This node reads a property and enables a feature based on it.
+
+Take those into account to enable NFC on Moto devices which have
+NFC-less variants
+---
+ .../java/com/android/server/SystemConfig.java | 19 +++++++++++++++++++
+ 1 file changed, 19 insertions(+)
+
+diff --git a/core/java/com/android/server/SystemConfig.java b/core/java/com/android/server/SystemConfig.java
+index 00b01051adae..ffcc75e63d66 100644
+--- a/core/java/com/android/server/SystemConfig.java
++++ b/core/java/com/android/server/SystemConfig.java
+@@ -979,6 +979,25 @@ public class SystemConfig {
+                         }
+                         XmlUtils.skipCurrentTag(parser);
+                     } break;
++                    case "unavailable-feature-conditional": {
++                        if (allowFeatures) {
++                            String fname = parser.getAttributeValue(null, "name");
++                            String prop = parser.getAttributeValue(null, "prop");
++                            if (fname == null || prop == null) {
++                                Slog.w(TAG, "<" + name + "> without name in " + permFile
++                                        + " at " + parser.getPositionDescription());
++                            } else {
++                                if(android.os.SystemProperties.getBoolean(prop, false)) {
++                                    addFeature(fname, 0);
++                                } else {
++                                    mUnavailableFeatures.add(fname);
++                                }
++                            }
++                        } else {
++                            logNotAllowedInPartition(name, permFile, parser);
++                        }
++                        XmlUtils.skipCurrentTag(parser);
++                    } break;
+                     case "allow-in-power-save-except-idle": {
+                         if (allowOverrideAppRestrictions) {
+                             String pkgname = parser.getAttributeValue(null, "package");
+-- 
+2.25.1
+

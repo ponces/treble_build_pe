@@ -1,0 +1,123 @@
+From 9a950e87018eaa3dbd591eee27903b5f648f434c Mon Sep 17 00:00:00 2001
+From: Pierre-Hugues Husson <phh@phh.me>
+Date: Sat, 17 Jun 2023 08:31:55 -0400
+Subject: [PATCH 40/41] Add Mediatek power hints on touch
+
+Mediatek has multiple HALs (which existed concurrently), so it is a bit
+of a mess.
+From what I can tell, mOldMtkPerf is used on Android 10 vendors, while
+mMtkPerf is used on Android 11/12 vendors.
+If anyone has an Android 9 vendor and want to take a look, I think it
+would be something like this:
+vendor.mediatek.hardware.power.V2_0.IPower.powerHint()
+
+On some devices, sending the touch boost isn't very helpful. Our guess
+is that Android 12 rendering got a lot heavier, and then touch boost is
+not enough. So, we add a property to /cheat/ and report a bigger boost:
+APP_ROTATE.
+On the few devices we've seen, touch boost only boosts scheduler, while
+app rotate will also for cpu min frequency.
+Experimentally using this app rotate boost indeed makes the device much
+smoother.
+---
+ services/core/Android.bp                      |  1 +
+ .../com/android/server/wm/DisplayPolicy.java  | 50 +++++++++++++++++++
+ 2 files changed, 51 insertions(+)
+
+diff --git a/services/core/Android.bp b/services/core/Android.bp
+index 604e1be0f03f..145a74a43464 100644
+--- a/services/core/Android.bp
++++ b/services/core/Android.bp
+@@ -174,6 +174,7 @@ java_library_static {
+         "com.android.sysprop.watchdog",
+         "faceunlock_framework",
+         // HIDL
++        "vendor.mediatek.hardware.mtkpower-V1.1-java",
+         "vendor.samsung.hardware.sysinput-V1.2-java",
+         "vendor.goodix.hardware.biometrics.fingerprint-V2.1-java",
+         "vendor.samsung.hardware.biometrics.fingerprint-V3.0-java",
+diff --git a/services/core/java/com/android/server/wm/DisplayPolicy.java b/services/core/java/com/android/server/wm/DisplayPolicy.java
+index 0da178b2bcd0..6435aaeeeb3f 100644
+--- a/services/core/java/com/android/server/wm/DisplayPolicy.java
++++ b/services/core/java/com/android/server/wm/DisplayPolicy.java
+@@ -217,6 +217,9 @@ public class DisplayPolicy {
+     private boolean mCanSystemBarsBeShownByUser;
+     private boolean mNavButtonForcedVisible;
+ 
++    private vendor.mediatek.hardware.mtkpower.V1_1.IMtkPerf mMtkPerf;
++    private vendor.mediatek.hardware.mtkpower.V1_0.IMtkPower mOldMtkPerf;
++
+     StatusBarManagerInternal getStatusBarManagerInternal() {
+         synchronized (mServiceAcquireLock) {
+             if (mStatusBarManagerInternal == null) {
+@@ -448,6 +451,20 @@ public class DisplayPolicy {
+             mScreenOnEarly = true;
+             mScreenOnFully = true;
+         }
++        try {
++            mMtkPerf = vendor.mediatek.hardware.mtkpower.V1_1.IMtkPerf.getService();
++        } catch(Throwable t) {
++            android.util.Log.d("PHH-Power", "Retrieving mtkpower 1.0", t);
++            mMtkPerf = null;
++        }
++
++        try {
++            mOldMtkPerf = vendor.mediatek.hardware.mtkpower.V1_0.IMtkPower.getService();
++        } catch(Throwable t) {
++            android.util.Log.d("PHH-Power", "Retrieving mtkpower 1.0", t);
++            mOldMtkPerf = null;
++        }
++
+ 
+         if (mPerf != null) {
+             SCROLL_BOOST_SS_ENABLE = Boolean.parseBoolean(mPerf.perfGetProp("vendor.perf.gestureflingboost.enable", "true"));
+@@ -527,6 +544,17 @@ public class DisplayPolicy {
+                             mService.mPowerManagerInternal.setPowerBoost(
+                                     Boost.INTERACTION, duration);
+                         }
++                        if(mOldMtkPerf != null) {
++                            try {
++                                android.util.Log.d("PHH-Power", "mtk1 fling power hint");
++                                int hint = 36; // MTKPOWER_HINT_APP_TOUCH
++                                if("rotate".equals(SystemProperties.get("persist.sys.phh.touch_hint")))
++                                        hint = 35; // MTKPOWER_HINT_APP_ROTATE
++                                mOldMtkPerf.mtkPowerHint(hint, duration);
++                            } catch(Throwable t) {
++                                android.util.Log.d("PHH-Power", "Failed sending touch power hint", t);
++                            }
++                        }
+                     }
+ 
+                     @Override
+@@ -545,6 +573,28 @@ public class DisplayPolicy {
+                         if (listener != null) {
+                             listener.onTouchStart();
+                         }
++                        if(mMtkPerf != null) {
++                            try {
++                                android.util.Log.d("PHH-Power", "mtk power hint");
++                                int hint = 25; //MTKPOWER_HINT_APP_TOUCH
++                                if("rotate".equals(SystemProperties.get("persist.sys.phh.touch_hint")))
++                                        hint = 24; // MTKPOWER_HINT_APP_ROTATE
++                                mMtkPerf.perfCusLockHint(hint, 1000);
++                            } catch(Throwable t) {
++                                android.util.Log.d("PHH-Power", "Failed sending touch power hint", t);
++                            }
++                        }
++                        if(mOldMtkPerf != null) {
++                            try {
++                                android.util.Log.d("PHH-Power", "mtk1 power hint");
++                                int hint = 36; // MTKPOWER_HINT_APP_TOUCH
++                                if("rotate".equals(SystemProperties.get("persist.sys.phh.touch_hint")))
++                                        hint = 35; // MTKPOWER_HINT_APP_ROTATE
++                                mOldMtkPerf.mtkPowerHint(hint, 1000);
++                            } catch(Throwable t) {
++                                android.util.Log.d("PHH-Power", "Failed sending touch power hint", t);
++                            }
++                        }
+                         if(SCROLL_BOOST_SS_ENABLE && mPerfBoostFling!= null
+                                             && mIsPerfBoostFlingAcquired) {
+                             mPerfBoostFling.perfLockRelease();
+-- 
+2.25.1
+
