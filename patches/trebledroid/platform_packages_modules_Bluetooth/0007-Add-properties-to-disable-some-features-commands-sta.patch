@@ -1,4 +1,4 @@
-From 79938eae61e6970f7fe5454570423d358b5b0006 Mon Sep 17 00:00:00 2001
+From 84883562d222e6f594ccbfb6f938abf1d6341d9f Mon Sep 17 00:00:00 2001
 From: Pierre-Hugues Husson <phh@phh.me>
 Date: Sat, 27 May 2023 06:41:32 -0400
 Subject: [PATCH 7/8] Add properties to disable some features/commands/states

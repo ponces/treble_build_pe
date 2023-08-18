@@ -1,4 +1,4 @@
-From d0826fd76c47dd53bfebcfeec1fd7db756a4e781 Mon Sep 17 00:00:00 2001
+From 87c7df3a8aef5bd56c658b692b71c9f7ddacfc12 Mon Sep 17 00:00:00 2001
 From: Peter Cai <peter@typeblog.net>
 Date: Wed, 24 Aug 2022 15:42:39 -0400
 Subject: [PATCH 04/28] APM: Optionally force-load audio policy for system-side

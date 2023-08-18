@@ -1,4 +1,4 @@
-From 91ebecce44f174db96208860f3d7735f5753f73a Mon Sep 17 00:00:00 2001
+From 4c5cbb119984594bbb783dca00bf905121710a44 Mon Sep 17 00:00:00 2001
 From: Pierre-Hugues Husson <phh@phh.me>
 Date: Wed, 9 Nov 2022 17:10:52 -0500
 Subject: [PATCH 26/28] Fix audio hal 2.0 support. Fixup of Revert "Remove

@@ -1,4 +1,4 @@
-From a46e75e4e82ab5de2bc4dd2b83a6f9bf8140f17b Mon Sep 17 00:00:00 2001
+From 285168dd61e6020c720d9ff6ea9a9fe82c6db2c7 Mon Sep 17 00:00:00 2001
 From: Pierre-Hugues Husson <phh@phh.me>
 Date: Thu, 19 Jan 2023 16:44:01 -0500
 Subject: [PATCH 3/4] Rework property overriding

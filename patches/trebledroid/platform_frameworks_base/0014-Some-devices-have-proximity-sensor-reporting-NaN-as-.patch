@@ -1,4 +1,4 @@
-From 8c769a465f86cc78e62bb64e773f38573126fabc Mon Sep 17 00:00:00 2001
+From 8d3db32e7e61573363d5d22215e1776bdf63c503 Mon Sep 17 00:00:00 2001
 From: Pierre-Hugues Husson <phh@phh.me>
 Date: Tue, 29 Sep 2020 22:39:47 +0200
 Subject: [PATCH 14/41] Some devices have proximity sensor reporting NaN as max
@@ -10,7 +10,7 @@ Change-Id: I3c39e3e914a05903c140235702e0480d2d58a612
  1 file changed, 3 insertions(+)
 
 diff --git a/services/core/java/com/android/server/display/DisplayPowerController.java b/services/core/java/com/android/server/display/DisplayPowerController.java
-index fd891d54f885..3c1b73109420 100644
+index 5ae16b4de0a6..53aace7b505c 100644
 --- a/services/core/java/com/android/server/display/DisplayPowerController.java
 +++ b/services/core/java/com/android/server/display/DisplayPowerController.java
 @@ -2175,6 +2175,9 @@ final class DisplayPowerController implements AutomaticBrightnessController.Call

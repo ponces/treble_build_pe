@@ -1,0 +1,26 @@
+From 35f54b9921623ce08f7a7f5a209895e38b7ddb01 Mon Sep 17 00:00:00 2001
+From: Pierre-Hugues Husson <phh@phh.me>
+Date: Tue, 11 Jul 2023 14:52:40 -0400
+Subject: [PATCH 19/19] Add /vendor/firmware_mnt. Moto Razr 2019 look for
+ firmwares (modem, sensors, ...) there
+
+---
+ rootdir/ueventd.rc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/rootdir/ueventd.rc b/rootdir/ueventd.rc
+index c9cd629b3..31f7f38cc 100644
+--- a/rootdir/ueventd.rc
++++ b/rootdir/ueventd.rc
+@@ -1,7 +1,7 @@
+ import /vendor/etc/ueventd.rc
+ import /odm/etc/ueventd.rc
+ 
+-firmware_directories /etc/firmware/ /odm/firmware/ /vendor/firmware/ /firmware/image/
++firmware_directories /etc/firmware/ /odm/firmware/ /vendor/firmware/ /firmware/image/ /vendor/firmware_mnt/image/
+ uevent_socket_rcvbuf_size 16M
+ 
+ subsystem graphics
+-- 
+2.25.1
+

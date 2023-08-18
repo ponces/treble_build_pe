@@ -1,4 +1,4 @@
-From f4cac37d83fc1fbb3fdf26bfb999554f10514214 Mon Sep 17 00:00:00 2001
+From 8d11cff135065494156414ca6c5921339e2639cb Mon Sep 17 00:00:00 2001
 From: Pierre-Hugues Husson <phh@phh.me>
 Date: Wed, 26 Oct 2022 18:10:46 -0400
 Subject: [PATCH 2/3] BpfMap() implemented new checks for kernel >=4.14 but as

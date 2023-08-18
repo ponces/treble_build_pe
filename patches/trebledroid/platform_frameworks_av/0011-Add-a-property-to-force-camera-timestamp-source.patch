@@ -1,4 +1,4 @@
-From a5e038e46848617a996ba89a071a6c97d7c65e32 Mon Sep 17 00:00:00 2001
+From aa3472198d0129de4e727b23e82a1f718d34dd91 Mon Sep 17 00:00:00 2001
 From: Pierre-Hugues Husson <phh@phh.me>
 Date: Tue, 19 May 2020 14:01:14 +0200
 Subject: [PATCH 11/28] Add a property to force camera timestamp source

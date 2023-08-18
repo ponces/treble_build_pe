@@ -1,4 +1,4 @@
-From 58b85e4d063f536abd8d707aaa365e469ea8b9dd Mon Sep 17 00:00:00 2001
+From 3cb9a996acd0b18c8e8fc795a6ad0d2a16b86192 Mon Sep 17 00:00:00 2001
 From: Pierre-Hugues Husson <phh@phh.me>
 Date: Tue, 5 Oct 2021 17:59:16 -0400
 Subject: [PATCH 02/41] Fallback to stupid autobrightness if brightness values

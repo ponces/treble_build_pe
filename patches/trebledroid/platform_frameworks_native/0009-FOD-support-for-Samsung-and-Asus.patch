@@ -1,4 +1,4 @@
-From 806d42b84641380491419bb0e7484aa9a836075d Mon Sep 17 00:00:00 2001
+From 71a1daa94e4956e88fb74b1a43c0111ed6713484 Mon Sep 17 00:00:00 2001
 From: Pierre-Hugues Husson <phh@phh.me>
 Date: Sun, 18 Dec 2022 18:17:30 -0500
 Subject: [PATCH 09/10] FOD support for Samsung and Asus
@@ -161,10 +161,10 @@ index 1bb9d0eb63..3960808d49 100644
            displayFrame.right, displayFrame.bottom);
  
 diff --git a/services/surfaceflinger/DisplayHardware/AidlComposerHal.cpp b/services/surfaceflinger/DisplayHardware/AidlComposerHal.cpp
-index 79dcd159d3..922bd8c364 100644
+index fb5f0cb30f..252d9e8165 100644
 --- a/services/surfaceflinger/DisplayHardware/AidlComposerHal.cpp
 +++ b/services/surfaceflinger/DisplayHardware/AidlComposerHal.cpp
-@@ -1126,5 +1126,12 @@ Error AidlComposer::getPhysicalDisplayOrientation(Display displayId,
+@@ -1128,5 +1128,12 @@ Error AidlComposer::getPhysicalDisplayOrientation(Display displayId,
      return Error::NONE;
  }
  
