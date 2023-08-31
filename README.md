@@ -2,6 +2,7 @@
 
 ## Build
 To get started with building Pixel Experience GSI, you'll need to get familiar with [Git and Repo](https://source.android.com/source/using-repo.html) as well as [How to build a GSI](https://github.com/phhusson/treble_experimentations/wiki/How-to-build-a-GSI%3F).
+### Linux
 - Create a new working directory for your Pixel Experience build and navigate to it:
     ```
     mkdir pixel; cd pixel
@@ -14,6 +15,8 @@ To get started with building Pixel Experience GSI, you'll need to get familiar w
     ```
     bash treble_build_pe/build.sh
     ```
+### macOS
+All of the steps above BUT instead of running `build.sh`, run `mac-build.sh`. Don't forget to [install `repo` and the Android Build Tools](https://github.com/phhusson/treble_experimentations/wiki/How-to-build-a-GSI%3F)!
 
 ## Notes
 - First and foremost, a huge thanks to David Dean for providing me with an incredible building server which helps (by a lot!!) delivering these builds as fast as possible.
