@@ -13,8 +13,5 @@ TARGET_SUPPORTS_CALL_RECORDING := true
 TARGET_USES_PREBUILT_VENDOR_SEPOLICY := true
 TARGET_HAS_FUSEBLK_SEPOLICY_ON_VENDOR := true
 
-PRODUCT_PACKAGES += \
-    androidx.window.extensions
-
 PRODUCT_SYSTEM_DEFAULT_PROPERTIES += \
     ro.system.ota.json_url=https://raw.githubusercontent.com/ponces/treble_build_pe/thirteen/ota.json

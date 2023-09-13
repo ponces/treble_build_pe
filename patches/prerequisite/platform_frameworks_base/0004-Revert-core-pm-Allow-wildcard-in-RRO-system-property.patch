@@ -1,0 +1,49 @@
+From 7bba06b86b03fcf3f673f4099f61c3ef043c9d1c Mon Sep 17 00:00:00 2001
+From: Alberto Ponces <ponces26@gmail.com>
+Date: Wed, 13 Sep 2023 11:24:15 +0000
+Subject: [PATCH 4/4] Revert "core: pm: Allow wildcard in RRO system property
+ value checks"
+
+This reverts commit 2d8e30614ff873ee83203a92eba62f263a001eee.
+---
+ .../pm/parsing/FrameworkParsingPackageUtils.java | 16 ++++------------
+ 1 file changed, 4 insertions(+), 12 deletions(-)
+
+diff --git a/core/java/android/content/pm/parsing/FrameworkParsingPackageUtils.java b/core/java/android/content/pm/parsing/FrameworkParsingPackageUtils.java
+index b75ba82ad091..3e1c5bb3d7ec 100644
+--- a/core/java/android/content/pm/parsing/FrameworkParsingPackageUtils.java
++++ b/core/java/android/content/pm/parsing/FrameworkParsingPackageUtils.java
+@@ -186,8 +186,8 @@ public class FrameworkParsingPackageUtils {
+      * Returns {@code true} if both the property name and value are empty or if the given system
+      * property is set to the specified value. Properties can be one or more, and if properties are
+      * more than one, they must be separated by comma, and count of names and values must be equal,
+-     * and also every given system property must be set to the corresponding value or it's a
+-     * wildcard. In all other cases, returns {@code false}
++     * and also every given system property must be set to the corresponding value.
++     * In all other cases, returns {@code false}
+      */
+     public static boolean checkRequiredSystemProperties(@Nullable String rawPropNames,
+             @Nullable String rawPropValues) {
+@@ -213,17 +213,9 @@ public class FrameworkParsingPackageUtils {
+             return false;
+         }
+         for (int i = 0; i < propNames.length; i++) {
++            // Check property value: make sure it is both set and equal to expected value
+             final String currValue = SystemProperties.get(propNames[i]);
+-            // 1. Make sure prop is set.
+-            if (currValue == null) {
+-                return false;
+-            }
+-            // 2. Check next prop if expected value is a wildcard.
+-            if ("*".equals(propValues[i])) {
+-                continue;
+-            }
+-            // 3. Check if prop is equal to expected value.
+-            if (!currValue.equals(propValues[i])) {
++            if (!TextUtils.equals(currValue, propValues[i])) {
+                 return false;
+             }
+         }
+-- 
+2.34.1
+

@@ -1,7 +1,7 @@
 From 0bfbc4c831e0bddc0c6f6632e8c75523ffc908f9 Mon Sep 17 00:00:00 2001
 From: Pierre-Hugues Husson <phh@phh.me>
 Date: Sun, 25 Oct 2020 23:57:26 +0100
-Subject: [PATCH 16/41] Re-implement fnmatch-like behaviour for RRO java-side
+Subject: [PATCH 16/42] Re-implement fnmatch-like behaviour for RRO java-side
 
 T: Also apply to FrameworkParsingPackageUtils (@PeterCxy)
 

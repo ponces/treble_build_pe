@@ -1,0 +1,209 @@
+From 77c645d927a5a58dba3f4bf07313fe27e7f13750 Mon Sep 17 00:00:00 2001
+From: jgudec <jakov.gudec@gmail.com>
+Date: Fri, 18 Aug 2023 08:41:49 +0100
+Subject: [PATCH 42/42] Add initial Xiaomi FOD implementation for recent Xiaomi
+ devices
+
+Huge thanks to phhusson for the help and guidance.
+---
+ packages/SystemUI/Android.bp                  |  2 +
+ .../android/systemui/biometrics/UdfpsView.kt  | 43 +++++++++++++++++
+ services/core/Android.bp                      |  1 +
+ .../server/biometrics/AuthService.java        | 46 +++++++++++++++++++
+ 4 files changed, 92 insertions(+)
+
+diff --git a/packages/SystemUI/Android.bp b/packages/SystemUI/Android.bp
+index dc2244c94080..8927c967c7d0 100644
+--- a/packages/SystemUI/Android.bp
++++ b/packages/SystemUI/Android.bp
+@@ -178,6 +178,8 @@ android_library {
+         "vendor.lineage.powershare-V1.0-java",
+         "faceunlock_framework",
+         "vendor.goodix.hardware.biometrics.fingerprint-V2.1-java",
++        "vendor.xiaomi.hw.touchfeature-V1.0-java",
++        "vendor.xiaomi.hardware.fingerprintextension-V1.0-java"
+     ],
+     manifest: "AndroidManifest.xml",
+ 
+diff --git a/packages/SystemUI/src/com/android/systemui/biometrics/UdfpsView.kt b/packages/SystemUI/src/com/android/systemui/biometrics/UdfpsView.kt
+index 6cc9ab3da570..8ab00fc34f0d 100644
+--- a/packages/SystemUI/src/com/android/systemui/biometrics/UdfpsView.kt
++++ b/packages/SystemUI/src/com/android/systemui/biometrics/UdfpsView.kt
+@@ -37,6 +37,12 @@ import java.io.File
+ 
+ import vendor.goodix.hardware.biometrics.fingerprint.V2_1.IGoodixFingerprintDaemon
+ 
++import vendor.xiaomi.hw.touchfeature.V1_0.ITouchFeature
++import vendor.xiaomi.hardware.fingerprintextension.V1_0.IXiaomiFingerprint
++
++import android.os.Handler
++import android.os.HandlerThread
++
+ private const val TAG = "UdfpsView"
+ 
+ 
+@@ -220,6 +226,12 @@ Log.d("PHH", "Surface destroyed!")
+     val hasSamsungMask = File(samsungActualMaskBrightness).exists()
+     var fodFileObserver: FileObserver? = null
+ 
++    val xiaomiDispParam = "/sys/class/mi_display/disp-DSI-0/disp_param"
++    var hasXiaomiLhbm = File(xiaomiDispParam).exists()
++
++    private val handlerThread = HandlerThread("UDFPS").also { it.start() }
++    val myHandler = Handler(handlerThread.looper)
++
+     fun configureDisplay(onDisplayConfigured: Runnable) {
+         isDisplayConfigured = true
+         animationViewController?.onDisplayConfiguring()
+@@ -255,6 +267,34 @@ Log.d("PHH", "Surface destroyed!")
+         if(android.os.SystemProperties.get("ro.vendor.build.fingerprint").contains("ASUS")) {
+             goodixCmd(200001)
+         }
++
++        if(hasXiaomiLhbm){
++            Log.d("PHH-Enroll", "Xiaomi scenario in UdfpsView reached!")
++            mySurfaceView.setVisibility(INVISIBLE)
++
++            IXiaomiFingerprint.getService().extCmd(android.os.SystemProperties.getInt("persist.phh.xiaomi.fod.enrollment.id", 4), 1);
++            var res = ITouchFeature.getService().setTouchMode(0, 10, 1);
++            if(res != 0){
++                Log.d("PHH-Enroll", "SetTouchMode 10,1 was NOT executed successfully. Res is " + res)
++            }
++
++            myHandler.postDelayed({
++                var ret200 = ITouchFeature.getService().setTouchMode(0, 10, 1);
++
++                if(ret200 != 0){
++                    Log.d("PHH-Enroll", "myHandler.postDelayed 200ms -SetTouchMode was NOT executed successfully. Ret is " + ret200)
++                }
++
++                myHandler.postDelayed({
++                    Log.d("PHH-Enroll", "myHandler.postDelayed 600ms - line prior to setTouchMode 10,0")
++                    var ret600 = ITouchFeature.getService().setTouchMode(0, 10, 0);
++
++                    if(ret600 != 0){
++                        Log.d("PHH-Enroll", "myHandler.postDelayed 600ms -SetTouchMode 10,0 was NOT executed successfully. Ret is " + ret600)
++                    }
++                }, 600)
++            }, 200)
++        }
+     }
+ 
+     fun unconfigureDisplay() {
+@@ -296,6 +336,9 @@ Log.d("PHH", "Surface destroyed!")
+                 }
+             };
+             fodFileObserver?.startWatching();
++        } else if(hasXiaomiLhbm) {
++            IXiaomiFingerprint.getService().extCmd(android.os.SystemProperties.getInt("persist.phh.xiaomi.fod.enrollment.id", 4), 0);
++            ITouchFeature.getService().setTouchMode(0, 10, 0);
+         } else {
+             dimUpdate(0.0f)
+         }
+diff --git a/services/core/Android.bp b/services/core/Android.bp
+index 145a74a43464..b99d95713731 100644
+--- a/services/core/Android.bp
++++ b/services/core/Android.bp
+@@ -180,6 +180,7 @@ java_library_static {
+         "vendor.samsung.hardware.biometrics.fingerprint-V3.0-java",
+         "vendor.oplus.hardware.biometrics.fingerprint-V2.1-java",
+         "vendor.oppo.hardware.biometrics.fingerprint-V2.1-java",
++        "vendor.xiaomi.hardware.fingerprintextension-V1.0-java",
+     ],
+     javac_shard_size: 50,
+ }
+diff --git a/services/core/java/com/android/server/biometrics/AuthService.java b/services/core/java/com/android/server/biometrics/AuthService.java
+index b47b47c41f76..696d5b42cd46 100644
+--- a/services/core/java/com/android/server/biometrics/AuthService.java
++++ b/services/core/java/com/android/server/biometrics/AuthService.java
+@@ -64,6 +64,7 @@ import android.os.ServiceManager;
+ import android.os.SystemProperties;
+ import android.os.UserHandle;
+ import android.provider.Settings;
++import android.text.TextUtils;
+ import android.util.Slog;
+ 
+ import com.android.internal.R;
+@@ -91,6 +92,7 @@ import vendor.samsung.hardware.biometrics.fingerprint.V3_0.ISehBiometricsFingerp
+ import vendor.goodix.hardware.biometrics.fingerprint.V2_1.IGoodixFingerprintDaemon;
+ import vendor.samsung.hardware.sysinput.V1_0.ISehSysInputDev;
+ 
++import vendor.xiaomi.hardware.fingerprintextension.V1_0.IXiaomiFingerprint;
+ /**
+  * System service that provides an interface for authenticating with biometrics and
+  * PIN/pattern/password to BiometricPrompt and lock screen.
+@@ -112,6 +114,7 @@ public class AuthService extends SystemService {
+     private FileObserver fodFileObserver = null;
+     private ISehBiometricsFingerprint mSamsungFingerprint = null;
+ 
++    private IXiaomiFingerprint mXiaomiFingerprint = null;
+     /**
+      * Class for injecting dependencies into AuthService.
+      * TODO(b/141025588): Replace with a dependency injection framework (e.g. Guice, Dagger).
+@@ -675,6 +678,12 @@ public class AuthService extends SystemService {
+         } catch(Exception e) {
+             android.util.Log.e("PHH", "Failed getting Samsung fingerprint HAL", e);
+         }
++        try {
++            mXiaomiFingerprint = IXiaomiFingerprint.getService();
++            android.util.Log.e("PHH", "Got xiaomi fingerprint HAL");
++        } catch(Exception e) {
++            android.util.Log.e("PHH", "Failed getting xiaomi fingerprint HAL", e);
++        }
+         if(samsungHasCmd("fod_enable") && mSamsungFingerprint != null) {
+             samsungCmd("fod_enable,1,1,0");
+             String actualMaskBrightnessPath = "/sys/class/lcd/panel/actual_mask_brightness";
+@@ -735,6 +744,31 @@ public class AuthService extends SystemService {
+             fodFileObserver.startWatching();
+         }
+ 
++        String xiaomiFodPressedStatusPath = "/sys/class/touch/touch_dev/fod_press_status";
++        if(new File(xiaomiFodPressedStatusPath).exists() && mXiaomiFingerprint != null) {
++            fodFileObserver = new FileObserver(xiaomiFodPressedStatusPath, FileObserver.MODIFY) {
++                @Override
++                public void onEvent(int event, String path) {
++                    String isFodPressed = readFile(xiaomiFodPressedStatusPath);
++                    Slog.d("PHH-Enroll", "Fod pressed status: " + isFodPressed);
++                    Slog.d("PHH-Enroll", "Within xiaomi scenario for FOD");
++
++                    try {
++                    if("0".equals(isFodPressed)) {
++                        Slog.d("PHH-Enroll", "Fod un-pressed!");
++                        mXiaomiFingerprint.extCmd(android.os.SystemProperties.getInt("phh.xiaomi.fod.enrollment.id", 4), 0);
++                    } else if("1".equals(isFodPressed)) {
++                        Slog.d("PHH-Enroll", "Fod pressed!");
++                        mXiaomiFingerprint.extCmd(android.os.SystemProperties.getInt("phh.xiaomi.fod.enrollment.id", 4), 1);
++                    }
++                    } catch(Exception e) {
++                        Slog.d("PHH-Enroll", "Failed Xiaomi async extcmd", e);
++                    }
++                }
++            };
++            fodFileObserver.startWatching();
++        }
++
+     }
+ 
+     /**
+@@ -936,6 +970,18 @@ public class AuthService extends SystemService {
+             return udfpsProps;
+         }
+ 
++        if(!TextUtils.isEmpty(android.os.SystemProperties.get("persist.vendor.sys.fp.fod.location.X_Y"))) {
++            int[] udfpsProps = new int[3];
++            String[] coordinates = android.os.SystemProperties.get("persist.vendor.sys.fp.fod.location.X_Y").split(",");
++            udfpsProps[0] = displayRealSize.x/2;
++            udfpsProps[1] = Integer.parseInt(coordinates[1]) + 100;
++
++            String[] widthHeight = android.os.SystemProperties.get("persist.vendor.sys.fp.fod.size.width_height").split(",");
++
++            udfpsProps[2] = (Integer.parseInt(widthHeight[0]) /2);
++            return udfpsProps;
++        }
++
+         return new int[0];
+     }
+ 
+-- 
+2.25.1
+

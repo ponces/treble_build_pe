@@ -1,7 +1,7 @@
 From 634e1840fad216d8950e0098d971ff4a35d176e0 Mon Sep 17 00:00:00 2001
 From: Alberto Ponces <ponces26@gmail.com>
 Date: Mon, 23 Jan 2023 16:28:11 +0000
-Subject: [PATCH 3/3] Revert "AuthService: Add support for workaround side fps
+Subject: [PATCH 3/4] Revert "AuthService: Add support for workaround side fps
  props"
 
 This reverts commit 065de1bce99b5be01f967beb5f573e616bcb4f15.
