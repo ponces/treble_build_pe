@@ -1,0 +1,24 @@
+From f9125a7dfacc50a1fe07b75f3686468cda416889 Mon Sep 17 00:00:00 2001
+From: ChonDoit <thphantomblog@gmail.com>
+Date: Wed, 13 Sep 2023 09:04:29 +0000
+Subject: [PATCH] sepolicy: Nuke fuseblk genfs_context
+
+Change-Id: I84331f579a6926b7fc641bd7f013ff905bdfacc0
+---
+ common/private/genfs_contexts | 4 ----
+ 1 file changed, 4 deletions(-)
+
+diff --git a/common/private/genfs_contexts b/common/private/genfs_contexts
+index 79a7736..d096874 100644
+--- a/common/private/genfs_contexts
++++ b/common/private/genfs_contexts
+@@ -1,6 +1,2 @@
+-ifelse(board_excludes_fuseblk_sepolicy, `true', ,
+-genfscon fuseblk / u:object_r:vfat:s0
+-)
+-
+ genfscon sysfs /devices/virtual/timed_output/vibrator u:object_r:sysfs_vibrator:s0
+ genfscon sysfs /module/mmcblk/parameters/perdev_minors u:object_r:sysfs_perdev_minors:s0
+-- 
+2.34.1
+
